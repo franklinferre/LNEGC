@@ -1,0 +1,49 @@
+# Teste do Validador de CPF
+Versão: 1.0.0
+Autor: Desenvolvedor LNEGC
+Data: 2024-04-07
+Domínio: Testes de Validação
+Tags: teste, validação, cpf, unitário
+
+## Descrição
+Testes unitários para o componente ValidadorCPF.
+Verifica se o validador identifica corretamente CPFs válidos e inválidos.
+
+## Dependências
+Requer ValidadorCPF para execução dos testes.
+
+## Cenários de Teste
+
+Cenário: Validar CPF com formato correto e dígitos verificadores válidos
+    Dado que o CPF "529.982.247-25" é fornecido
+    Quando o validador é chamado com este CPF
+    Então o resultado deve ser verdadeiro
+    E nenhuma exceção deve ser lançada
+
+Cenário: Validar CPF com formato incorreto
+    Dado que o CPF "529.982.247-2A" é fornecido
+    Quando o validador é chamado com este CPF
+    Então uma exceção FormatoInvalidoException deve ser lançada
+
+Cenário: Validar CPF com comprimento incorreto
+    Dado que o CPF "529.982.247" é fornecido
+    Quando o validador é chamado com este CPF
+    Então o resultado deve ser falso
+    E nenhuma exceção deve ser lançada
+
+Cenário: Validar CPF com todos os dígitos iguais
+    Dado que o CPF "111.111.111-11" é fornecido
+    Quando o validador é chamado com este CPF
+    Então o resultado deve ser falso
+    E nenhuma exceção deve ser lançada
+
+Cenário: Validar CPF com dígitos verificadores incorretos
+    Dado que o CPF "529.982.247-26" é fornecido
+    Quando o validador é chamado com este CPF
+    Então o resultado deve ser falso
+    E nenhuma exceção deve ser lançada
+
+## Mocks e Stubs
+
+Para testar ValidadorCPF, não é necessário simular dependências externas.
+O componente é autocontido e não depende de serviços externos. 

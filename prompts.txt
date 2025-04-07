@@ -1,0 +1,291 @@
+Por favor, gere um componente em python com as seguintes especificações:
+
+Nome: Componente
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Utilitário
+
+Descrição:
+Sem descrição disponível.
+
+Algoritmo:
+1. Receber o CPF como string
+2. Remover caracteres não numéricos
+3. Verificar se tem 11 dígitos
+4. Calcular primeiro dígito verificador
+5. Calcular segundo dígito verificador
+6. Comparar com os dígitos fornecidos
+7. Retornar resultado da validação
+
+Regras:
+- CPF deve ter 11 dígitos
+- Todos os dígitos não podem ser iguais
+- Primeiro dígito verificador deve ser válido
+- Segundo dígito verificador deve ser válido
+
+Interface:
+Sem interface definida.
+
+Observações:
+- Toda a documentação deve estar em português do Brasil
+- Comentários devem estar em português do Brasil
+- Nomes de variáveis e funções devem seguir o padrão camelCase em português
+
+Exemplos:
+Exemplo 1: CPF válido
+    Entrada:
+        cpf = "529.982.247-25"
+    Processamento:
+        1. Limpar para "52998224725"
+        2. Verificar comprimento (11 dígitos) ✓
+        3. Verificar padrão de repetição ✓
+        4. Calcular primeiro dígito verificador -> 2 ✓
+        5. Calcular segundo dígito verificador -> 5 ✓
+    Saída:
+        true
+
+Exemplo 2: CPF inválido (dígitos incorretos)
+    Entrada:
+        cpf = "529.982.247-26"
+    Saída:
+        false
+Implementação de Referência:
+```python
+def validar_cpf(cpf: str) -> bool:
+    # Remove caracteres não numéricos
+    cpf = ''.join(filter(str.isdigit, cpf))
+    
+    # Verifica se tem 11 dígitos
+    if len(cpf) != 11:
+        raise ValueError("CPF deve ter 11 dígitos")
+        
+    # Verifica se todos os dígitos são iguais
+    if len(set(cpf)) == 1:
+        return False
+        
+    # Calcula primeiro dígito verificador
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    digito1 = (soma * 10) % 11
+    if digito1 == 10:
+        digito1 = 0
+        
+    # Calcula segundo dígito verificador
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    digito2 = (soma * 10) % 11
+    if digito2 == 10:
+        digito2 = 0
+        
+    # Verifica os dígitos
+    return cpf[-2:] == f"{digito1}{digito2}"
+```
+
+Por favor, gere uma entidade em python com as seguintes especificações:
+
+Nome: Entidade
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Domínio
+
+Descrição:
+Sem descrição disponível.
+
+Atributos:
+- id: int (chave primária)
+- nome: str (obrigatório)
+- email: str (obrigatório)
+- cpf: str (obrigatório)
+- telefone: str (opcional)
+- data_nascimento: date (opcional)
+- ativo: bool (padrão: True)
+
+Regras:
+- Nome deve ter entre 3 e 100 caracteres
+- Email deve ser único e válido
+- CPF deve ser válido
+- Telefone deve seguir formato (XX) XXXXX-XXXX
+- Data de nascimento deve ser anterior à data atual
+
+Relacionamentos:
+- Um Cliente pode ter vários Pedidos (1:N)
+- Um Cliente pertence a uma Cidade (N:1)
+
+
+Implementação de Referência:
+```python
+from datetime import date
+from dataclasses import dataclass
+from typing import Optional
+from lnegc.componentes.validador_cpf import validar_cpf
+
+@dataclass
+class Cliente:
+    id: int
+    nome: str
+    email: str
+    cpf: str
+    telefone: Optional[str] = None
+    data_nascimento: Optional[date] = None
+    ativo: bool = True
+
+    def __post_init__(self):
+        self.validar()
+
+    def validar(self):
+        if not 3 <= len(self.nome) <= 100:
+            raise ValueError("Nome deve ter entre 3 e 100 caracteres")
+        
+        if not "@" in self.email:
+            raise ValueError("Email inválido")
+        
+        if not validar_cpf(self.cpf):
+            raise ValueError("CPF inválido")
+        
+        if self.telefone and not self.telefone.match(r"\(\d{2}\) \d{5}-\d{4}"):
+            raise ValueError("Telefone deve seguir formato (XX) XXXXX-XXXX")
+        
+        if self.data_nascimento and self.data_nascimento > date.today():
+            raise ValueError("Data de nascimento deve ser anterior à data atual")
+```
+
+Por favor, gere uma interface em python com as seguintes especificações:
+
+Nome: Interface
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Interface
+
+Descrição:
+Sem descrição disponível.
+
+Métodos:
+- criar(entidade: T) -> T
+- ler(id: int) -> T
+- atualizar(entidade: T) -> T
+- deletar(id: int) -> bool
+- listar() -> List[T]
+- buscar(filtro: Dict) -> List[T]
+
+Propriedades:
+Sem propriedades definidas.
+
+Regras:
+- Todos os métodos devem ser thread-safe
+- Operações de escrita devem ser atômicas
+- Erros devem ser registrados
+- Cache deve ser invalidado após escrita
+
+
+Implementação de Referência:
+```python
+from abc import ABC, abstractmethod
+from typing import TypeVar, List, Dict
+
+T = TypeVar('T')
+
+class Repositorio(ABC):
+    @abstractmethod
+    def criar(self, entidade: T) -> T:
+        """Cria uma nova entidade no repositório."""
+        pass
+
+    @abstractmethod
+    def ler(self, id: int) -> T:
+        """Lê uma entidade pelo ID."""
+        pass
+
+    @abstractmethod
+    def atualizar(self, entidade: T) -> T:
+        """Atualiza uma entidade existente."""
+        pass
+
+    @abstractmethod
+    def deletar(self, id: int) -> bool:
+        """Remove uma entidade pelo ID."""
+        pass
+
+    @abstractmethod
+    def listar(self) -> List[T]:
+        """Lista todas as entidades."""
+        pass
+
+    @abstractmethod
+    def buscar(self, filtro: Dict) -> List[T]:
+        """Busca entidades que correspondem ao filtro."""
+        pass
+
+Por favor, gere testes em python com as seguintes especificações:
+
+Nome: Teste
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Teste Unitário
+
+Descrição:
+Sem descrição disponível.
+
+Cenários:
+1. CPF Válido
+   Entrada: "123.456.789-09"
+   Esperado: True
+   Descrição: Deve retornar True para um CPF válido
+
+2. CPF Inválido
+   Entrada: "123.456.789-10"
+   Esperado: False
+   Descrição: Deve retornar False para um CPF inválido
+
+3. CPF com Dígitos Iguais
+   Entrada: "111.111.111-11"
+   Esperado: False
+   Descrição: Deve retornar False para CPF com todos dígitos iguais
+
+4. CPF com Formato Inválido
+   Entrada: "123.456.789"
+   Esperado: ValueError
+   Descrição: Deve lançar ValueError para CPF com formato inválido
+
+Mocks:
+Sem mocks definidos.
+
+Fixtures:
+Sem fixtures definidas.
+
+
+Implementação de Referência:
+```python
+import pytest
+from lnegc.componentes.validador_cpf import validar_cpf
+
+def test_cpf_valido():
+    assert validar_cpf("123.456.789-09") == True
+
+def test_cpf_invalido():
+    assert validar_cpf("123.456.789-10") == False
+
+def test_cpf_digitos_iguais():
+    assert validar_cpf("111.111.111-11") == False
+
+def test_cpf_formato_invalido():
+    with pytest.raises(ValueError):
+        validar_cpf("123.456.789")
+
+Por favor, gere testes em python com as seguintes especificações:
+
+Nome: Teste do Validador de CPF
+Versão: 1.0.0
+Autor: Desenvolvedor LNEGC
+Tipo: Teste Unitário
+
+Descrição:
+Testes unitários para o componente ValidadorCPF.
+Verifica se o validador identifica corretamente CPFs válidos e inválidos.
+
+Cenários:
+Sem cenários definidos.
+
+Mocks:
+Sem mocks definidos.
+
+Fixtures:
+Sem fixtures definidas.
+

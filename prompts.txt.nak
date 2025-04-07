@@ -1,0 +1,122 @@
+Por favor, gere um componente em python com as seguintes especificações:
+
+Nome: ValidadorCPF
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Utilitário
+
+Descrição:
+Sem descrição disponível.
+
+Algoritmo:
+Sem algoritmo definido.
+
+Regras:
+Sem regras definidas.
+
+Interface:
+Sem interface definida.
+
+
+Exemplos:
+Exemplo 1: CPF válido
+    Entrada:
+        cpf = "529.982.247-25"
+    Processamento:
+        1. Limpar para "52998224725"
+        2. Verificar comprimento (11 dígitos) ✓
+        3. Verificar padrão de repetição ✓
+        4. Calcular primeiro dígito verificador -> 2 ✓
+        5. Calcular segundo dígito verificador -> 5 ✓
+    Saída:
+        true
+
+Exemplo 2: CPF inválido (dígitos incorretos)
+    Entrada:
+        cpf = "529.982.247-26"
+    Saída:
+        false
+
+Por favor, gere uma entidade em python com as seguintes especificações:
+
+Nome: str
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Domínio
+
+Descrição:
+Sem descrição disponível.
+
+Atributos:
+Sem atributos definidos.
+
+Regras:
+Sem regras definidas.
+
+Relacionamentos:
+Sem relacionamentos definidos.
+
+
+
+Por favor, gere uma interface em python com as seguintes especificações:
+
+Nome: Repositorio
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Infraestrutura
+
+Descrição:
+Sem descrição disponível.
+
+Métodos:
+Sem métodos definidos.
+
+Propriedades:
+Sem propriedades definidas.
+
+Regras:
+Sem regras definidas.
+
+
+
+Por favor, gere testes em python com as seguintes especificações:
+
+Nome: ValidadorCPFTest
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Tipo: Unitário
+
+Descrição:
+Sem descrição disponível.
+
+Cenários:
+Sem cenários definidos.
+
+Mocks:
+Sem mocks definidos.
+
+Fixtures:
+Sem fixtures definidas.
+
+
+
+Por favor, gere testes em python com as seguintes especificações:
+
+Nome: Teste do Validador de CPF
+Versão: 1.0.0
+Autor: Desenvolvedor LNEGC
+Tipo: Teste Unitário
+
+Descrição:
+Testes unitários para o componente ValidadorCPF.
+Verifica se o validador identifica corretamente CPFs válidos e inválidos.
+
+Cenários:
+Sem cenários definidos.
+
+Mocks:
+Sem mocks definidos.
+
+Fixtures:
+Sem fixtures definidas.
+

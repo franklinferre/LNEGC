@@ -1,0 +1,87 @@
+# LNEGC v1.0
+# Autor: LNEGC Team
+# Data: 2024-04-07
+# Descrição: Validador de CPF
+
+[COMPONENTE]
+Nome: ValidadorCPF
+Tipo: Utilitário
+Linguagem: Python
+Versão: 1.0.0
+
+[ALGORITMO]
+1. Receber o CPF como string
+2. Remover caracteres não numéricos
+3. Verificar se tem 11 dígitos
+4. Calcular primeiro dígito verificador
+5. Calcular segundo dígito verificador
+6. Comparar com os dígitos fornecidos
+7. Retornar resultado da validação
+
+[REGRAS]
+- CPF deve ter 11 dígitos
+- Todos os dígitos não podem ser iguais
+- Primeiro dígito verificador deve ser válido
+- Segundo dígito verificador deve ser válido
+
+[TESTES]
+- CPF válido: deve retornar True
+- CPF inválido: deve retornar False
+- CPF com formato inválido: deve lançar exceção
+- CPF com todos dígitos iguais: deve retornar False
+
+[IMPLEMENTAÇÃO]
+```python
+def validar_cpf(cpf: str) -> bool:
+    # Remove caracteres não numéricos
+    cpf = ''.join(filter(str.isdigit, cpf))
+    
+    # Verifica se tem 11 dígitos
+    if len(cpf) != 11:
+        raise ValueError("CPF deve ter 11 dígitos")
+        
+    # Verifica se todos os dígitos são iguais
+    if len(set(cpf)) == 1:
+        return False
+        
+    # Calcula primeiro dígito verificador
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    digito1 = (soma * 10) % 11
+    if digito1 == 10:
+        digito1 = 0
+        
+    # Calcula segundo dígito verificador
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    digito2 = (soma * 10) % 11
+    if digito2 == 10:
+        digito2 = 0
+        
+    # Verifica os dígitos
+    return cpf[-2:] == f"{digito1}{digito2}"
+```
+
+## Regras de Negócio
+
+RN01: ValidadorCPF deve rejeitar CPFs com todos os dígitos idênticos.
+RN02: ValidadorCPF deve considerar válido apenas CPFs que atendam ao algoritmo dos dígitos verificadores.
+RN03: ValidadorCPF deve limpar formatação (pontos e traços) antes da validação.
+
+## Exemplos
+
+Exemplo 1: CPF válido
+    Entrada:
+        cpf = "529.982.247-25"
+    Processamento:
+        1. Limpar para "52998224725"
+        2. Verificar comprimento (11 dígitos) ✓
+        3. Verificar padrão de repetição ✓
+        4. Calcular primeiro dígito verificador -> 2 ✓
+        5. Calcular segundo dígito verificador -> 5 ✓
+    Saída:
+        true
+
+Exemplo 2: CPF inválido (dígitos incorretos)
+    Entrada:
+        cpf = "529.982.247-26"
+    Saída:
+        false 

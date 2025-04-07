@@ -1,0 +1,62 @@
+# LNEGC v1.0
+# Autor: LNEGC Team
+# Data: 2024-04-07
+# Descrição: Interface de Repositório
+
+[INTERFACE]
+Nome: Repositorio
+Tipo: Infraestrutura
+Linguagem: Python
+Versão: 1.0.0
+
+[MÉTODOS]
+- criar(entidade: T) -> T
+- ler(id: int) -> T
+- atualizar(entidade: T) -> T
+- deletar(id: int) -> bool
+- listar() -> List[T]
+- buscar(filtro: Dict) -> List[T]
+
+[REGRAS]
+- Todos os métodos devem ser thread-safe
+- Operações de escrita devem ser atômicas
+- Erros devem ser registrados
+- Cache deve ser invalidado após escrita
+
+[IMPLEMENTAÇÃO]
+```python
+from abc import ABC, abstractmethod
+from typing import TypeVar, List, Dict
+
+T = TypeVar('T')
+
+class Repositorio(ABC):
+    @abstractmethod
+    def criar(self, entidade: T) -> T:
+        """Cria uma nova entidade no repositório."""
+        pass
+
+    @abstractmethod
+    def ler(self, id: int) -> T:
+        """Lê uma entidade pelo ID."""
+        pass
+
+    @abstractmethod
+    def atualizar(self, entidade: T) -> T:
+        """Atualiza uma entidade existente."""
+        pass
+
+    @abstractmethod
+    def deletar(self, id: int) -> bool:
+        """Remove uma entidade pelo ID."""
+        pass
+
+    @abstractmethod
+    def listar(self) -> List[T]:
+        """Lista todas as entidades."""
+        pass
+
+    @abstractmethod
+    def buscar(self, filtro: Dict) -> List[T]:
+        """Busca entidades que correspondem ao filtro."""
+        pass 

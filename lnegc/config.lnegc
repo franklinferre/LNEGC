@@ -1,0 +1,30 @@
+# LNEGC v1.0
+# Autor: LNEGC Team
+# Data: 2024-04-07
+# Descrição: Configuração Global do Projeto
+
+[PROJETO]
+Nome: LNEGC
+Versão: 1.0.0
+Descrição: Linguagem Natural Estruturada para Geração de Código
+
+[CONFIGURAÇÕES]
+Linguagem_Padrão: Vite/React
+Encoding: UTF-8
+Indentação: 4 espaços
+
+[DIRETÓRIOS]
+Componentes: componentes/
+Entidades: entidades/
+Interfaces: interfaces/
+Testes: testes/
+
+[REGRAS]
+- Todos os arquivos devem seguir o padrão LNEGC
+- Documentação em português do Brasil
+- Testes obrigatórios para novos componentes
+- Versionamento semântico
+
+[EXTENSÕES]
+- .lnegc: Arquivos LNEGC
+- .test.lnegc: Arquivos de teste 

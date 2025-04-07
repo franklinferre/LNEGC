@@ -1,0 +1,50 @@
+# LNEGC v1.0
+# Autor: LNEGC Team
+# Data: 2024-04-07
+# Descrição: Testes do Validador de CPF
+
+[TESTE]
+Nome: ValidadorCPFTest
+Componente: ValidadorCPF
+Tipo: Unitário
+Framework: pytest
+Versão: 1.0.0
+
+[CENÁRIOS]
+1. CPF Válido
+   Entrada: "123.456.789-09"
+   Esperado: True
+   Descrição: Deve retornar True para um CPF válido
+
+2. CPF Inválido
+   Entrada: "123.456.789-10"
+   Esperado: False
+   Descrição: Deve retornar False para um CPF inválido
+
+3. CPF com Dígitos Iguais
+   Entrada: "111.111.111-11"
+   Esperado: False
+   Descrição: Deve retornar False para CPF com todos dígitos iguais
+
+4. CPF com Formato Inválido
+   Entrada: "123.456.789"
+   Esperado: ValueError
+   Descrição: Deve lançar ValueError para CPF com formato inválido
+
+[IMPLEMENTAÇÃO]
+```python
+import pytest
+from lnegc.componentes.validador_cpf import validar_cpf
+
+def test_cpf_valido():
+    assert validar_cpf("123.456.789-09") == True
+
+def test_cpf_invalido():
+    assert validar_cpf("123.456.789-10") == False
+
+def test_cpf_digitos_iguais():
+    assert validar_cpf("111.111.111-11") == False
+
+def test_cpf_formato_invalido():
+    with pytest.raises(ValueError):
+        validar_cpf("123.456.789") 
