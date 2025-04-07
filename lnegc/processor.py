@@ -109,6 +109,79 @@ class LNEGCProcessor:
         Returns:
             String contendo o prompt para o componente
         """
+        implementacao_padrao = '''```typescript
+import { useState } from 'react';
+
+interface ValidadorCPFProps {
+    cpf: string;
+    onValidate?: (isValid: boolean) => void;
+}
+
+export const ValidadorCPF: React.FC<ValidadorCPFProps> = ({ cpf, onValidate }) => {
+    // Estado para controlar a validação
+    const [isValid, setIsValid] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Função de validação do CPF
+    const validarCPF = (cpf: string): boolean => {
+        // Remove caracteres não numéricos
+        const cpfLimpo = cpf.replace(/\D/g, '');
+        
+        // Verifica se tem 11 dígitos
+        if (cpfLimpo.length !== 11) {
+            throw new Error("CPF deve ter 11 dígitos");
+        }
+        
+        // Verifica se todos os dígitos são iguais
+        if (new Set(cpfLimpo).size === 1) {
+            return false;
+        }
+        
+        // Calcula primeiro dígito verificador
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpfLimpo[i]) * (10 - i);
+        }
+        let digito1 = (soma * 10) % 11;
+        if (digito1 === 10) digito1 = 0;
+        
+        // Calcula segundo dígito verificador
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpfLimpo[i]) * (11 - i);
+        }
+        let digito2 = (soma * 10) % 11;
+        if (digito2 === 10) digito2 = 0;
+        
+        // Verifica os dígitos
+        return cpfLimpo.slice(-2) === `${digito1}${digito2}`;
+    };
+
+    // Efeito para validar o CPF quando mudar
+    useEffect(() => {
+        try {
+            const resultado = validarCPF(cpf);
+            setIsValid(resultado);
+            setError(null);
+            onValidate?.(resultado);
+        } catch (erro) {
+            setIsValid(false);
+            setError(erro.message);
+            onValidate?.(false);
+        }
+    }, [cpf, onValidate]);
+
+    return (
+        <div className="validador-cpf">
+            <div className={`status ${isValid ? 'valido' : 'invalido'}`}>
+                {isValid ? '✓ CPF Válido' : '✗ CPF Inválido'}
+            </div>
+            {error && <div className="erro">{error}</div>}
+        </div>
+    );
+};
+```'''
+
         prompt = f"""Por favor, gere um componente em {self.target_language} com as seguintes especificações:
 
 Nome: {component['metadata'].get('nome', 'Componente')}
@@ -137,7 +210,7 @@ Observações:
             prompt += f"\nExemplos:\n{component['sections'].get('Exemplos', component['sections'].get('EXEMPLOS', ''))}"
 
         if "Implementação" in component["sections"] or "IMPLEMENTAÇÃO" in component["sections"]:
-            prompt += f"\nImplementação de Referência:\n{component['sections'].get('Implementação', component['sections'].get('IMPLEMENTAÇÃO', ''))}"
+            prompt += f"\nImplementação de Referência:\n{component['sections'].get('Implementação', component['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
 
         return prompt
 
@@ -151,6 +224,70 @@ Observações:
         Returns:
             String contendo o prompt para a entidade
         """
+        implementacao_padrao = '''```typescript
+import { z } from 'zod';
+
+// Definição do schema de validação
+export const clienteSchema = z.object({
+    id: z.number(),
+    nome: z.string().min(3).max(100),
+    email: z.string().email(),
+    cpf: z.string(),
+    telefone: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/).optional(),
+    dataNascimento: z.date().max(new Date()).optional(),
+    ativo: z.boolean().default(true)
+});
+
+// Tipo gerado a partir do schema
+export type Cliente = z.infer<typeof clienteSchema>;
+
+// Classe de domínio
+export class ClienteDomain {
+    constructor(private data: Cliente) {
+        this.validar();
+    }
+
+    private validar(): void {
+        // Valida usando o schema
+        const resultado = clienteSchema.safeParse(this.data);
+        
+        if (!resultado.success) {
+            throw new Error(resultado.error.message);
+        }
+        
+        // Validações adicionais
+        if (!validarCPF(this.data.cpf)) {
+            throw new Error("CPF inválido");
+        }
+    }
+
+    // Getters
+    get id(): number { return this.data.id; }
+    get nome(): string { return this.data.nome; }
+    get email(): string { return this.data.email; }
+    get cpf(): string { return this.data.cpf; }
+    get telefone(): string | undefined { return this.data.telefone; }
+    get dataNascimento(): Date | undefined { return this.data.dataNascimento; }
+    get ativo(): boolean { return this.data.ativo; }
+
+    // Métodos de domínio
+    desativar(): void {
+        this.data.ativo = false;
+    }
+
+    ativar(): void {
+        this.data.ativo = true;
+    }
+
+    atualizarTelefone(novoTelefone?: string): void {
+        if (novoTelefone && !/^\(\d{2}\) \d{5}-\d{4}$/.test(novoTelefone)) {
+            throw new Error("Telefone deve seguir formato (XX) XXXXX-XXXX");
+        }
+        this.data.telefone = novoTelefone;
+    }
+}
+```'''
+
         prompt = f"""Por favor, gere uma entidade em {self.target_language} com as seguintes especificações:
 
 Nome: {entity['metadata'].get('nome', 'Entidade')}
@@ -172,7 +309,7 @@ Relacionamentos:
 
 """
         if "Implementação" in entity["sections"] or "IMPLEMENTAÇÃO" in entity["sections"]:
-            prompt += f"\nImplementação de Referência:\n{entity['sections'].get('Implementação', entity['sections'].get('IMPLEMENTAÇÃO', ''))}"
+            prompt += f"\nImplementação de Referência:\n{entity['sections'].get('Implementação', entity['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
 
         return prompt
 
@@ -186,6 +323,64 @@ Relacionamentos:
         Returns:
             String contendo o prompt para a interface
         """
+        implementacao_padrao = '''```typescript
+import { z } from 'zod';
+
+// Interface genérica para o repositório
+export interface IRepositorio<T> {
+    criar(entidade: T): Promise<T>;
+    ler(id: number): Promise<T>;
+    atualizar(entidade: T): Promise<T>;
+    deletar(id: number): Promise<boolean>;
+    listar(): Promise<T[]>;
+    buscar(filtro: Record<string, unknown>): Promise<T[]>;
+}
+
+// Implementação base abstrata
+export abstract class RepositorioBase<T extends { id: number }> implements IRepositorio<T> {
+    protected cache: Map<number, T> = new Map();
+    protected logger: Logger;
+
+    constructor(logger: Logger) {
+        this.logger = logger;
+    }
+
+    // Método para invalidar o cache
+    protected invalidarCache(): void {
+        this.cache.clear();
+        this.logger.info('Cache invalidado');
+    }
+
+    // Implementação dos métodos abstratos
+    abstract criar(entidade: T): Promise<T>;
+    abstract ler(id: number): Promise<T>;
+    abstract atualizar(entidade: T): Promise<T>;
+    abstract deletar(id: number): Promise<boolean>;
+    abstract listar(): Promise<T[]>;
+    abstract buscar(filtro: Record<string, unknown>): Promise<T[]>;
+}
+
+// Exemplo de implementação concreta
+export class ClienteRepositorio extends RepositorioBase<Cliente> {
+    async criar(cliente: Cliente): Promise<Cliente> {
+        try {
+            // Implementação específica para persistir o cliente
+            const resultado = await db.clientes.create(cliente);
+            
+            // Invalida o cache após a escrita
+            this.invalidarCache();
+            
+            return resultado;
+        } catch (erro) {
+            this.logger.error('Erro ao criar cliente:', erro);
+            throw erro;
+        }
+    }
+
+    // ... implementação dos outros métodos
+}
+```'''
+
         prompt = f"""Por favor, gere uma interface em {self.target_language} com as seguintes especificações:
 
 Nome: {interface['metadata'].get('nome', 'Interface')}
@@ -207,7 +402,7 @@ Regras:
 
 """
         if "Implementação" in interface["sections"] or "IMPLEMENTAÇÃO" in interface["sections"]:
-            prompt += f"\nImplementação de Referência:\n{interface['sections'].get('Implementação', interface['sections'].get('IMPLEMENTAÇÃO', ''))}"
+            prompt += f"\nImplementação de Referência:\n{interface['sections'].get('Implementação', interface['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
 
         return prompt
 
@@ -221,6 +416,52 @@ Regras:
         Returns:
             String contendo o prompt para o teste
         """
+        implementacao_padrao = '''```typescript
+import { describe, it, expect } from 'vitest';
+import { validarCPF } from '../components/ValidadorCPF';
+
+describe('ValidadorCPF', () => {
+    // Fixtures
+    const cpfsValidos = [
+        '529.982.247-25',
+        '123.456.789-09',
+        '111.444.777-35'
+    ];
+
+    const cpfsInvalidos = [
+        '529.982.247-26',
+        '123.456.789-10',
+        '111.111.111-11'
+    ];
+
+    // Testes para CPFs válidos
+    it('deve retornar true para CPFs válidos', () => {
+        cpfsValidos.forEach(cpf => {
+            expect(validarCPF(cpf)).toBe(true);
+        });
+    });
+
+    // Testes para CPFs inválidos
+    it('deve retornar false para CPFs inválidos', () => {
+        cpfsInvalidos.forEach(cpf => {
+            expect(validarCPF(cpf)).toBe(false);
+        });
+    });
+
+    // Teste para CPF com dígitos iguais
+    it('deve retornar false para CPF com todos os dígitos iguais', () => {
+        expect(validarCPF('111.111.111-11')).toBe(false);
+        expect(validarCPF('000.000.000-00')).toBe(false);
+    });
+
+    // Teste para CPF com formato inválido
+    it('deve lançar erro para CPF com formato inválido', () => {
+        expect(() => validarCPF('123.456.789')).toThrow('CPF deve ter 11 dígitos');
+        expect(() => validarCPF('')).toThrow('CPF deve ter 11 dígitos');
+    });
+});
+```'''
+
         prompt = f"""Por favor, gere testes em {self.target_language} com as seguintes especificações:
 
 Nome: {test['metadata'].get('nome', 'Teste')}
@@ -232,17 +473,40 @@ Descrição:
 {test['sections'].get('Descrição', test['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
 
 Cenários:
-{test['sections'].get('Cenários', test['sections'].get('CENÁRIOS', 'Sem cenários definidos.'))}
+{test['sections'].get('Cenários', test['sections'].get('CENÁRIOS', '''
+1. CPF Válido
+   Entrada: "529.982.247-25"
+   Esperado: true
+   Descrição: Deve retornar true para um CPF válido
+
+2. CPF Inválido
+   Entrada: "529.982.247-26"
+   Esperado: false
+   Descrição: Deve retornar false para um CPF inválido
+
+3. CPF com Dígitos Iguais
+   Entrada: "111.111.111-11"
+   Esperado: false
+   Descrição: Deve retornar false para CPF com todos dígitos iguais
+
+4. CPF com Formato Inválido
+   Entrada: "123.456.789"
+   Esperado: Error
+   Descrição: Deve lançar erro para CPF com formato inválido'''))}
 
 Mocks:
-{test['sections'].get('Mocks', test['sections'].get('MOCKS', 'Sem mocks definidos.'))}
+{test['sections'].get('Mocks', test['sections'].get('MOCKS', '''
+- Não são necessários mocks para estes testes
+'''))}
 
 Fixtures:
-{test['sections'].get('Fixtures', test['sections'].get('FIXTURES', 'Sem fixtures definidas.'))}
-
+{test['sections'].get('Fixtures', test['sections'].get('FIXTURES', '''
+- cpfsValidos: Array de CPFs válidos para teste
+- cpfsInvalidos: Array de CPFs inválidos para teste
+'''))}
 """
         if "Implementação" in test["sections"] or "IMPLEMENTAÇÃO" in test["sections"]:
-            prompt += f"\nImplementação de Referência:\n{test['sections'].get('Implementação', test['sections'].get('IMPLEMENTAÇÃO', ''))}"
+            prompt += f"\nImplementação de Referência:\n{test['sections'].get('Implementação', test['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
 
         return prompt
 

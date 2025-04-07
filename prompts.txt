@@ -1,4 +1,4 @@
-Por favor, gere um componente em python com as seguintes especificações:
+Por favor, gere um componente em Vite/React com as seguintes especificações:
 
 Nome: Componente
 Versão: 1.0.0
@@ -79,7 +79,7 @@ def validar_cpf(cpf: str) -> bool:
     return cpf[-2:] == f"{digito1}{digito2}"
 ```
 
-Por favor, gere uma entidade em python com as seguintes especificações:
+Por favor, gere uma entidade em Vite/React com as seguintes especificações:
 
 Nome: Entidade
 Versão: 1.0.0
@@ -147,7 +147,7 @@ class Cliente:
             raise ValueError("Data de nascimento deve ser anterior à data atual")
 ```
 
-Por favor, gere uma interface em python com as seguintes especificações:
+Por favor, gere uma interface em Vite/React com as seguintes especificações:
 
 Nome: Interface
 Versão: 1.0.0
@@ -213,7 +213,7 @@ class Repositorio(ABC):
         """Busca entidades que correspondem ao filtro."""
         pass
 
-Por favor, gere testes em python com as seguintes especificações:
+Por favor, gere testes em Vite/React com as seguintes especificações:
 
 Nome: Teste
 Versão: 1.0.0
@@ -245,10 +245,14 @@ Cenários:
    Descrição: Deve lançar ValueError para CPF com formato inválido
 
 Mocks:
-Sem mocks definidos.
+
+- Não são necessários mocks para estes testes
+
 
 Fixtures:
-Sem fixtures definidas.
+
+- cpfsValidos: Array de CPFs válidos para teste
+- cpfsInvalidos: Array de CPFs inválidos para teste
 
 
 Implementação de Referência:
@@ -269,7 +273,7 @@ def test_cpf_formato_invalido():
     with pytest.raises(ValueError):
         validar_cpf("123.456.789")
 
-Por favor, gere testes em python com as seguintes especificações:
+Por favor, gere testes em Vite/React com as seguintes especificações:
 
 Nome: Teste do Validador de CPF
 Versão: 1.0.0
@@ -281,11 +285,34 @@ Testes unitários para o componente ValidadorCPF.
 Verifica se o validador identifica corretamente CPFs válidos e inválidos.
 
 Cenários:
-Sem cenários definidos.
+
+1. CPF Válido
+   Entrada: "529.982.247-25"
+   Esperado: true
+   Descrição: Deve retornar true para um CPF válido
+
+2. CPF Inválido
+   Entrada: "529.982.247-26"
+   Esperado: false
+   Descrição: Deve retornar false para um CPF inválido
+
+3. CPF com Dígitos Iguais
+   Entrada: "111.111.111-11"
+   Esperado: false
+   Descrição: Deve retornar false para CPF com todos dígitos iguais
+
+4. CPF com Formato Inválido
+   Entrada: "123.456.789"
+   Esperado: Error
+   Descrição: Deve lançar erro para CPF com formato inválido
 
 Mocks:
-Sem mocks definidos.
+
+- Não são necessários mocks para estes testes
+
 
 Fixtures:
-Sem fixtures definidas.
+
+- cpfsValidos: Array de CPFs válidos para teste
+- cpfsInvalidos: Array de CPFs inválidos para teste
 
