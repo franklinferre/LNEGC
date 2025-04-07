@@ -1,13 +1,14 @@
 # LNEGC - Linguagem Natural Estruturada para Geração de Código
 
-[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Type Checking](https://img.shields.io/badge/type%20checking-mypy-blue.svg)](http://mypy-lang.org/)
-[![Tests](https://img.shields.io/badge/tests-pytest-blue.svg)](https://docs.pytest.org/)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/lnegc/lnegc)
-[![Documentation](https://img.shields.io/badge/docs-complete-brightgreen.svg)](docs/README.md)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](docs/referencias/contribuindo.md)
+[![Python Version](https://img.shields.io/pypi/pyversions/lnegc.svg)](https://pypi.org/project/lnegc/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Type Checking: mypy](https://img.shields.io/badge/type%20checking-mypy-blue)](http://mypy-lang.org/)
+[![Tests](https://github.com/franklinferre/LNEGC/actions/workflows/ci.yml/badge.svg)](https://github.com/franklinferre/LNEGC/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/franklinferre/LNEGC/branch/main/graph/badge.svg)](https://codecov.io/gh/franklinferre/LNEGC)
+[![Documentation Status](https://readthedocs.org/projects/lnegc/badge/?version=latest)](https://lnegc.readthedocs.io/pt/latest/?badge=latest)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md)
 
 ## 🚀 Sobre
 
@@ -51,7 +52,7 @@ yarn global add lnegc
 
 ## 🚀 Uso Rápido
 
-1. Crie um arquivo `.lnegc`:
+1. Crie um arquivo `validador_cpf.lnegc`:
 ```lnegc
 @componente ValidadorCPF
 @descricao Valida CPF usando algoritmo oficial
@@ -87,7 +88,7 @@ const valido = validador.validar("123.456.789-00");
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Por favor, leia nosso [guia de contribuição](docs/referencias/contribuindo.md) para detalhes sobre nosso código de conduta e processo de submissão de pull requests.
+Contribuições são bem-vindas! Por favor, leia nosso [guia de contribuição](CONTRIBUTING.md) para detalhes sobre nosso código de conduta e processo de submissão de pull requests.
 
 ## 📝 Licença
 
