@@ -34,7 +34,8 @@ class LNEGCProcessor:
         self._entities: List[Dict] = []
         self._interfaces: List[Dict] = []
         self._tests: List[Dict] = []
-        self.target_language = target_language if target_language is not None else "python"
+        self.target_language = target_language
+        self._load_config()  # Carrega configuração imediatamente para definir a linguagem
 
     def _load_config(self) -> None:
         """
@@ -64,9 +65,9 @@ class LNEGCProcessor:
             if not self.target_language:
                 self.target_language = self._config.get('metadata', {}).get('linguagem')
             
-            # Se ainda não encontrou, usa o padrão
+            # Se ainda não encontrou, usa Vite/React como padrão
             if not self.target_language:
-                self.target_language = 'python'
+                self.target_language = 'Vite/React'
 
     def _load_files(self) -> None:
         """Carrega todos os arquivos .lnegc do projeto."""
