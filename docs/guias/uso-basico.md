@@ -1,5 +1,130 @@
 # Guia de Uso Básico
 
+Este guia apresenta os conceitos básicos e primeiros passos para começar a usar o LNEGC.
+
+## Estrutura do Projeto
+
+```
+projeto/
+├── .lnegc/                  # Configurações do LNEGC
+│   ├── config.lnegc         # Configuração global
+│   ├── rules.lnegc          # Regras do projeto
+│   └── templates/           # Templates personalizados
+│
+├── src/                     # Código fonte
+│   ├── components/          # Componentes
+│   │   └── *.lnegc         # Arquivos de componentes
+│   ├── entities/           # Entidades
+│   │   └── *.lnegc         # Arquivos de entidades
+│   ├── interfaces/         # Interfaces
+│   │   └── *.lnegc         # Arquivos de interfaces
+│   └── tests/              # Testes
+│       └── *.lnegc         # Arquivos de teste
+│
+├── generated/              # Código gerado
+│   ├── components/         # Componentes gerados
+│   ├── entities/          # Entidades geradas
+│   ├── interfaces/        # Interfaces geradas
+│   └── tests/             # Testes gerados
+│
+├── .gitignore             # Arquivos ignorados pelo Git
+├── package.json           # Dependências e scripts
+└── README.md              # Documentação do projeto
+```
+
+## Configuração Inicial
+
+1. Criar diretório do projeto:
+```bash
+mkdir meu-projeto
+cd meu-projeto
+```
+
+2. Inicializar projeto:
+```bash
+lnegc init
+```
+
+3. Configurar arquivo `.lnegc/config.lnegc`:
+```lnegc
+# Configuração do Projeto
+
+## Metadados
+- **Nome**: Meu Projeto
+- **Versão**: 1.0.0
+- **Autor**: João Silva
+- **Domínio**: exemplo.com
+- **Tags**: web, api, backend
+
+## Configurações
+- **Linguagem**: TypeScript
+- **Framework**: Node.js
+- **Banco de Dados**: PostgreSQL
+- **Testes**: Jest
+```
+
+## Exemplo de Uso
+
+1. Criar componente:
+```lnegc
+# Calculadora
+
+Este componente implementa operações matemáticas básicas.
+
+## Interface
+```typescript
+interface Calculadora {
+    soma(a: number, b: number): number;
+    subtracao(a: number, b: number): number;
+    multiplicacao(a: number, b: number): number;
+    divisao(a: number, b: number): number;
+}
+```
+
+## Algoritmo
+1. Receber operação e operandos
+2. Validar operandos
+3. Executar operação
+4. Retornar resultado
+
+## Exemplos
+```typescript
+const calc = new Calculadora();
+const resultado = calc.soma(5, 3);
+console.log(resultado); // 8
+```
+```
+
+2. Gerar código:
+```bash
+lnegc generate src/components/calculadora.lnegc
+```
+
+3. Validar código:
+```bash
+lnegc validate src/components/calculadora.lnegc
+```
+
+4. Analisar código:
+```bash
+lnegc analyze src/components/calculadora.lnegc
+```
+
+## Vantagens
+
+- **Produtividade**: Gere código rapidamente a partir de descrições
+- **Qualidade**: Siga padrões e boas práticas consistentemente
+- **Manutenibilidade**: Documentação sempre atualizada
+- **Colaboração**: Linguagem comum para toda a equipe
+- **Escalabilidade**: Estrutura organizada e extensível
+
+## Próximos Passos
+
+- [Uso Avançado](uso-avancado.md)
+- [API](../referencias/api.md)
+- [Exemplos](../exemplos/)
+- [Boas Práticas](../boas-praticas/)
+
 ## Criando um Componente
 
 ### 1. Criar Arquivo
@@ -172,11 +297,4 @@ lnegc docs generate
 ### 2. Visualizar Documentação
 ```bash
 lnegc docs serve
-```
-
-## Próximos Passos
-
-1. [Guia de Uso Avançado](uso-avancado.md)
-2. [Exemplos](exemplos/README.md)
-3. [Boas Práticas](boas-praticas/README.md)
-4. [Documentação da API](referencias/api.md) 
+``` 

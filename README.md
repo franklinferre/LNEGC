@@ -1,215 +1,94 @@
 # LNEGC - Linguagem Natural Estruturada para Geração de Código
 
-LNEGC é uma linguagem e ferramenta que permite gerar código a partir de descrições em linguagem natural estruturada.
+[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type Checking](https://img.shields.io/badge/type%20checking-mypy-blue.svg)](http://mypy-lang.org/)
+[![Tests](https://img.shields.io/badge/tests-pytest-blue.svg)](https://docs.pytest.org/)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/lnegc/lnegc)
+[![Documentation](https://img.shields.io/badge/docs-complete-brightgreen.svg)](docs/README.md)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](docs/referencias/contribuindo.md)
 
-## Visão Geral
+## 🚀 Sobre
 
-O LNEGC permite que você:
+LNEGC é uma linguagem e ferramenta inovadora para gerar código a partir de descrições em linguagem natural estruturada. Ela permite que desenvolvedores e equipes criem código de forma mais eficiente, mantendo a documentação sempre atualizada e seguindo as melhores práticas de desenvolvimento.
 
-- Descreva componentes, entidades e interfaces em linguagem natural
-- Gere código automaticamente a partir dessas descrições
-- Mantenha documentação sempre atualizada
-- Siga padrões e boas práticas consistentemente
+## ✨ Características
 
-## Instalação
+- 🎯 Geração de código a partir de descrições em linguagem natural
+- 📚 Documentação automática e sempre atualizada
+- 🛠️ Suporte a múltiplas linguagens de programação
+- 🔍 Validação e análise de código
+- 🧪 Testes automatizados
+- 🔄 Integração contínua
+- 📊 Métricas e relatórios
+- 🔌 Sistema de plugins extensível
+
+## 🛠️ Tecnologias
+
+- Python 3.10+
+- TypeScript
+- React
+- Node.js
+- Docker
+- GitHub Actions
+- OpenAI API
+- PostgreSQL
+- Redis
+
+## 📦 Instalação
 
 ```bash
+# Usando pip
+pip install lnegc
+
+# Usando npm
 npm install -g lnegc
-# ou
+
+# Usando yarn
 yarn global add lnegc
 ```
 
-## Uso Básico
+## 🚀 Uso Rápido
 
-1. Criar um arquivo `.lnegc`:
-
+1. Crie um arquivo `.lnegc`:
 ```lnegc
-# Calculadora
+@componente ValidadorCPF
+@descricao Valida CPF usando algoritmo oficial
+@interface
+  @metodo validar(cpf: string): boolean
+  @retorno true se CPF válido, false caso contrário
+@exemplo
+  const validador = new ValidadorCPF();
+  const valido = validador.validar("123.456.789-00");
+```
 
-Este componente implementa operações matemáticas básicas.
+2. Gere o código:
+```bash
+lnegc generate validador_cpf.lnegc
+```
 
-## Interface
+3. Use o componente:
 ```typescript
-interface Calculadora {
-    soma(a: number, b: number): number;
-    subtracao(a: number, b: number): number;
-    multiplicacao(a: number, b: number): number;
-    divisao(a: number, b: number): number;
-}
+import { ValidadorCPF } from './validador_cpf';
+
+const validador = new ValidadorCPF();
+const valido = validador.validar("123.456.789-00");
 ```
 
-## Algoritmo
-1. Receber operação e operandos
-2. Validar operandos
-3. Executar operação
-4. Retornar resultado
+## 📚 Documentação
 
-## Exemplos
-```typescript
-const calc = new Calculadora();
-const resultado = calc.soma(5, 3);
-console.log(resultado); // 8
-```
-```
+- [Guia de Instalação](docs/guias/instalacao.md)
+- [Uso Básico](docs/guias/uso-basico.md)
+- [Uso Avançado](docs/guias/uso-avancado.md)
+- [API](docs/referencias/api.md)
+- [Exemplos](docs/exemplos/)
+- [Boas Práticas](docs/boas-praticas/)
 
-2. Gerar código:
+## 🤝 Contribuindo
 
-```bash
-lnegc generate src/components/calculadora.lnegc
-```
+Contribuições são bem-vindas! Por favor, leia nosso [guia de contribuição](docs/referencias/contribuindo.md) para detalhes sobre nosso código de conduta e processo de submissão de pull requests.
 
-## Estrutura do Projeto
+## 📝 Licença
 
-```
-projeto/
-├── .lnegc/                  # Configurações do LNEGC
-│   ├── config.lnegc         # Configuração global
-│   ├── rules.lnegc          # Regras do projeto
-│   └── templates/           # Templates personalizados
-│
-├── src/                     # Código fonte
-│   ├── components/          # Componentes
-│   │   └── *.lnegc         # Arquivos de componentes
-│   ├── entities/           # Entidades
-│   │   └── *.lnegc         # Arquivos de entidades
-│   ├── interfaces/         # Interfaces
-│   │   └── *.lnegc         # Arquivos de interfaces
-│   └── tests/              # Testes
-│       └── *.lnegc         # Arquivos de teste
-│
-├── docs/                    # Documentação
-│   ├── README.md           # Documentação principal
-│   ├── INDEX.md            # Índice da documentação
-│   ├── ESTRUTURA.md        # Estrutura do projeto
-│   ├── GUIAS.md            # Guias de uso
-│   ├── EXEMPLOS.md         # Exemplos
-│   ├── BOAS_PRATICAS.md    # Boas práticas
-│   ├── TEMPLATES.md        # Templates
-│   ├── ESPECIFICACAO.md    # Especificação
-│   ├── GRAMATICA.md        # Gramática formal
-│   ├── PROCESSADOR.md      # Especificação do processador
-│   ├── PROMPTS.md          # Especificação dos prompts
-│   └── VANTAGENS.md        # Vantagens
-│
-├── generated/              # Código gerado
-│   ├── components/         # Componentes gerados
-│   ├── entities/          # Entidades geradas
-│   ├── interfaces/        # Interfaces geradas
-│   └── tests/             # Testes gerados
-│
-├── .gitignore             # Arquivos ignorados pelo Git
-├── package.json           # Dependências e scripts
-└── README.md              # Documentação do projeto
-```
-
-## Configuração Inicial
-
-1. Criar diretório do projeto:
-```bash
-mkdir meu-projeto
-cd meu-projeto
-```
-
-2. Inicializar projeto:
-```bash
-lnegc init
-```
-
-3. Configurar arquivo `.lnegc/config.lnegc`:
-```lnegc
-# Configuração do Projeto
-
-## Metadados
-- **Nome**: Meu Projeto
-- **Versão**: 1.0.0
-- **Autor**: João Silva
-- **Domínio**: exemplo.com
-- **Tags**: web, api, backend
-
-## Configurações
-- **Linguagem**: TypeScript
-- **Framework**: Node.js
-- **Banco de Dados**: PostgreSQL
-- **Testes**: Jest
-```
-
-## Exemplo de Uso
-
-1. Criar componente:
-```lnegc
-# Calculadora
-
-Este componente implementa operações matemáticas básicas.
-
-## Interface
-```typescript
-interface Calculadora {
-    soma(a: number, b: number): number;
-    subtracao(a: number, b: number): number;
-    multiplicacao(a: number, b: number): number;
-    divisao(a: number, b: number): number;
-}
-```
-
-## Algoritmo
-1. Receber operação e operandos
-2. Validar operandos
-3. Executar operação
-4. Retornar resultado
-
-## Exemplos
-```typescript
-const calc = new Calculadora();
-const resultado = calc.soma(5, 3);
-console.log(resultado); // 8
-```
-```
-
-2. Gerar código:
-```bash
-lnegc generate src/components/calculadora.lnegc
-```
-
-3. Validar código:
-```bash
-lnegc validate src/components/calculadora.lnegc
-```
-
-4. Analisar código:
-```bash
-lnegc analyze src/components/calculadora.lnegc
-```
-
-## Vantagens
-
-- **Produtividade**: Gere código rapidamente a partir de descrições
-- **Qualidade**: Siga padrões e boas práticas consistentemente
-- **Manutenibilidade**: Documentação sempre atualizada
-- **Colaboração**: Linguagem comum para toda a equipe
-- **Escalabilidade**: Estrutura organizada e extensível
-
-## Documentação
-
-- [Índice](docs/INDEX.md)
-- [Estrutura](docs/ESTRUTURA.md)
-- [Guias](docs/GUIAS.md)
-- [Exemplos](docs/EXEMPLOS.md)
-- [Boas Práticas](docs/BOAS_PRATICAS.md)
-- [Templates](docs/TEMPLATES.md)
-- [Especificação](docs/ESPECIFICACAO.md)
-- [Gramática](docs/GRAMATICA.md)
-- [Processador](docs/PROCESSADOR.md)
-- [Prompts](docs/PROMPTS.md)
-- [Vantagens](docs/VANTAGENS.md)
-
-## Contribuição
-
-1. Fork o projeto
-2. Crie sua branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'Feat: adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
-## Licença
-
-Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes. 
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes. 
