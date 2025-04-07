@@ -27,10 +27,10 @@ Exemplo de uso:
             print("-" * 80)
 """
 
-from .parser import LNEGCParser
-from .processor import LNEGCProcessor
+from .src.core.parser import LNEGCParser
+from .src.core.processor import LNEGCProcessor
 
-__version__ = "1.0.0"
+__version__ = "0.1.0"
 __author__ = "Equipe LNEGC"
 __email__ = "contato@lnegc.com.br"
 

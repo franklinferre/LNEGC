@@ -45,67 +45,72 @@ class LNEGCProcessor:
                 pass
 
     def _load_config(self) -> None:
-        """
-        Carrega o arquivo de configuração do projeto.
+        """Carrega o arquivo de configuração do projeto."""
+        config_paths = [
+            self.directory / "config.lnegc",
+            self.directory / ".lnegc" / "config.lnegc",
+            Path(self.directory).parent / ".lnegc" / "config.lnegc",
+            Path(self.directory).parent / "config.lnegc",
+            Path(self.directory).parent.parent / ".lnegc" / "config.lnegc",
+            Path(self.directory).parent.parent / "config.lnegc"
+        ]
 
-        Raises:
-            FileNotFoundError: Se o arquivo config.lnegc não existir
-        """
-        config_file = self.directory / "config.lnegc"
-        print("\nCarregando arquivo de configuração:", config_file)
-        if not config_file.exists():
-            if not self.directory.exists():
-                raise FileNotFoundError(f"Diretório não existe: {self.directory}")
-            raise FileNotFoundError(f"Arquivo de configuração não encontrado: {config_file}")
+        config_file = None
+        for path in config_paths:
+            if path.exists():
+                print(f"Carregando configuração de: {path}")
+                config_file = path
+                break
 
-        parser = LNEGCParser(config_file)
-        self._config = parser.parse()
-        print("Config carregado:", self._config)
-        
-        # Define a linguagem alvo com base na configuração
-        if self.target_language == 'python':  # Só atualiza se ainda estiver com o valor padrão
-            # Procura a linguagem nas configurações
-            config_sections = self._config.get('sections', {})
-            if 'CONFIGURAÇÕES' in config_sections:
-                config_text = config_sections['CONFIGURAÇÕES']
-                for line in config_text.split('\n'):
-                    if line.strip().startswith('- Linguagem:'):
-                        self.target_language = line.split(':')[1].strip()
-                        break
-            
-            # Se não encontrou, procura nos metadados
-            if self.target_language == 'python':
-                self.target_language = self._config.get('metadata', {}).get('linguagem', 'python')
+        if not config_file:
+            paths_str = "\n".join(str(p) for p in config_paths)
+            raise FileNotFoundError(
+                f"Arquivo de configuração não encontrado. Tentei os seguintes caminhos:\n{paths_str}"
+            )
+
+        # Lê o arquivo de configuração
+        with open(config_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Procura a linguagem nas configurações
+        for line in content.split('\n'):
+            if '**Linguagem**:' in line:
+                self.target_language = line.split(':')[1].strip().lower()
+                break
 
     def _load_files(self) -> None:
         """Carrega todos os arquivos .lnegc do projeto."""
         # Carrega componentes
-        components_dir = self.directory / "componentes"
+        components_dir = self.directory
         if components_dir.exists():
-            for file in components_dir.glob("*.lnegc"):
-                parser = LNEGCParser(file)
-                self._components.append(parser.parse())
+            for file in components_dir.glob("**/*.lnegc"):
+                if "componentes" in str(file) or "components" in str(file):
+                    parser = LNEGCParser(file)
+                    self._components.append(parser.parse())
 
         # Carrega entidades
-        entities_dir = self.directory / "entidades"
+        entities_dir = self.directory
         if entities_dir.exists():
-            for file in entities_dir.glob("*.lnegc"):
-                parser = LNEGCParser(file)
-                self._entities.append(parser.parse())
+            for file in entities_dir.glob("**/*.lnegc"):
+                if "entidades" in str(file) or "entities" in str(file):
+                    parser = LNEGCParser(file)
+                    self._entities.append(parser.parse())
 
         # Carrega interfaces
-        interfaces_dir = self.directory / "interfaces"
+        interfaces_dir = self.directory
         if interfaces_dir.exists():
-            for file in interfaces_dir.glob("*.lnegc"):
-                parser = LNEGCParser(file)
-                self._interfaces.append(parser.parse())
+            for file in interfaces_dir.glob("**/*.lnegc"):
+                if "interfaces" in str(file):
+                    parser = LNEGCParser(file)
+                    self._interfaces.append(parser.parse())
 
         # Carrega testes
-        tests_dir = self.directory / "testes"
+        tests_dir = self.directory
         if tests_dir.exists():
-            for file in tests_dir.glob("*.lnegc"):
-                parser = LNEGCParser(file)
-                self._tests.append(parser.parse())
+            for file in tests_dir.glob("**/*.lnegc"):
+                if "testes" in str(file) or "tests" in str(file):
+                    parser = LNEGCParser(file)
+                    self._tests.append(parser.parse())
 
     def _generate_component_prompt(self, component: Dict) -> str:
         """
@@ -149,39 +154,95 @@ Observações:
 
         return prompt
 
-    def _generate_entity_prompt(self, entity: Dict) -> str:
-        """
-        Gera o prompt para uma entidade.
+    def _generate_entity_prompt(self, entity: dict) -> str:
+        """Gera o prompt para uma entidade."""
+        metadata = entity.get('metadata', {})
+        attributes = entity.get('attributes', [])
+        validations = entity.get('validations', [])
+        relationships = entity.get('relationships', [])
+        methods = entity.get('methods', [])
+        indexes = entity.get('indexes', [])
+        permissions = entity.get('permissions', [])
+        audit = entity.get('auditoria', [])
 
-        Args:
-            entity: Dicionário com os dados da entidade
-
-        Returns:
-            String contendo o prompt para a entidade
-        """
         prompt = f"""Por favor, gere uma entidade em {self.target_language} com as seguintes especificações:
 
-Nome: {entity['metadata'].get('nome', 'Entidade')}
-Versão: {entity['metadata'].get('versao', '1.0.0')}
-Autor: {entity['metadata'].get('autor', 'Equipe LNEGC')}
-Tipo: {entity['metadata'].get('tipo', 'Domínio')}
+# Metadados
+- Nome: {metadata.get('Nome', 'Não definido')}
+- Tipo: {metadata.get('Tipo', 'Não definido')}
+- Descrição: {metadata.get('Descrição', 'Não definido')}
+- Autor: {metadata.get('Autor', 'Não definido')}
+- Versão: {metadata.get('Versão', 'Não definido')}
 
-Descrição:
-{entity['sections'].get('Descrição', entity['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
+# Atributos
+{self._format_attributes(attributes)}
 
-Atributos:
-{entity['sections'].get('Atributos', entity['sections'].get('ATRIBUTOS', 'Sem atributos definidos.'))}
+# Validações de Negócio
+{self._format_validations(validations)}
 
-Regras:
-{entity['sections'].get('Regras', entity['sections'].get('REGRAS', 'Sem regras definidas.'))}
+# Relacionamentos
+{self._format_relationships(relationships)}
 
-Relacionamentos:
-{entity['sections'].get('Relacionamentos', entity['sections'].get('RELACIONAMENTOS', 'Sem relacionamentos definidos.'))}
+# Métodos de Domínio
+{self._format_methods(methods)}
 
-"""
-        # Sempre inclui a implementação padrão
-        prompt += f"\nImplementação de Referência:\n{self.implementacao_padrao_entidade}"
+# Índices do Banco de Dados
+{self._format_indexes(indexes)}
 
+# Regras de Permissão
+{self._format_permissions(permissions)}
+
+# Requisitos de Auditoria
+{self._format_audit(audit)}
+
+# Requisitos Técnicos
+1. Use TypeScript com decorators para validação
+2. Implemente validações usando Zod
+3. Use classes de domínio com encapsulamento
+4. Implemente todos os métodos de domínio
+5. Adicione validações de negócio
+6. Use tipos fortes e interfaces
+7. Implemente tratamento de erros
+8. Adicione documentação JSDoc
+9. Siga os princípios SOLID
+10. Implemente testes unitários
+
+# Exemplo de Implementação
+```typescript
+import {{ z }} from 'zod';
+import {{ Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn }} from 'typeorm';
+
+/* Schema de validação */
+export const entitySchema = z.object({{
+    /* ... schema definition */
+}});
+
+/* Interface da entidade */
+export interface IEntity {{
+    /* ... interface definition */
+}}
+
+/* Classe de domínio */
+export class EntityDomain {{
+    constructor(private data: IEntity) {{
+        this.validate();
+    }}
+
+    private validate(): void {{
+        /* Validações de negócio */
+    }}
+
+    /* Métodos de domínio */
+}}
+
+/* Entidade do banco de dados */
+@Entity()
+export class EntityModel {{
+    /* ... entity definition */
+}}
+```
+
+Por favor, gere uma implementação completa seguindo estas especificações e requisitos técnicos."""
         return prompt
 
     def _generate_interface_prompt(self, interface: Dict) -> str:
@@ -603,4 +664,46 @@ describe('ValidadorCPF', () => {
         all_prompts = []
         for prompts in result.values():
             all_prompts.extend(prompts)
-        return all_prompts 
+        return all_prompts
+
+    def _format_attributes(self, attributes: List[str]) -> str:
+        """Formata a lista de atributos para o prompt."""
+        if not attributes:
+            return "Sem atributos definidos."
+        return "\n".join(f"- {attr}" for attr in attributes)
+
+    def _format_validations(self, validations: List[str]) -> str:
+        """Formata a lista de validações para o prompt."""
+        if not validations:
+            return "Sem validações definidas."
+        return "\n".join(f"- {val}" for val in validations)
+
+    def _format_relationships(self, relationships: List[str]) -> str:
+        """Formata a lista de relacionamentos para o prompt."""
+        if not relationships:
+            return "Sem relacionamentos definidos."
+        return "\n".join(f"- {rel}" for rel in relationships)
+
+    def _format_methods(self, methods: List[str]) -> str:
+        """Formata a lista de métodos para o prompt."""
+        if not methods:
+            return "Sem métodos definidos."
+        return "\n".join(f"- {method}" for method in methods)
+
+    def _format_indexes(self, indexes: List[str]) -> str:
+        """Formata a lista de índices para o prompt."""
+        if not indexes:
+            return "Sem índices definidos."
+        return "\n".join(f"- {idx}" for idx in indexes)
+
+    def _format_permissions(self, permissions: List[str]) -> str:
+        """Formata a lista de permissões para o prompt."""
+        if not permissions:
+            return "Sem permissões definidas."
+        return "\n".join(f"- {perm}" for perm in permissions)
+
+    def _format_audit(self, audit: List[str]) -> str:
+        """Formata a lista de requisitos de auditoria para o prompt."""
+        if not audit:
+            return "Sem requisitos de auditoria definidos."
+        return "\n".join(f"- {req}" for req in audit) 

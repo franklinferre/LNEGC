@@ -17,86 +17,80 @@ from typing import Dict, List, Optional, Union
 class LNEGCParser:
     """Parser para arquivos LNEGC."""
 
-    def __init__(self, file_path: Union[str, Path]):
+    def __init__(self, file_path: Path):
         """
         Inicializa o parser LNEGC.
 
         Args:
             file_path: Caminho para o arquivo .lnegc a ser processado
         """
-        self.file_path = Path(file_path)
-        self._content: Optional[str] = None
-        self._lines: Optional[List[str]] = None
+        self.file_path = file_path
+        self.content = self._read_file()
 
-    def _read_file(self) -> None:
+    def _read_file(self) -> str:
+        """Lê o conteúdo do arquivo."""
+        with open(self.file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+
+    def parse(self) -> dict:
+        """Parse o arquivo .lnegc e retorna um dicionário com as informações."""
+        sections = self._parse_sections()
+        metadata = self._parse_metadata(sections.get('Metadados', ''))
+        
+        return {
+            'metadata': metadata,
+            'attributes': self._parse_list_items(sections.get('Atributos', '')),
+            'validations': self._parse_list_items(sections.get('Validações', '')),
+            'relationships': self._parse_list_items(sections.get('Relacionamentos', '')),
+            'methods': self._parse_list_items(sections.get('Métodos', '')),
+            'indexes': self._parse_list_items(sections.get('Índices', '')),
+            'permissions': self._parse_list_items(sections.get('Permissões', '')),
+            'auditoria': self._parse_list_items(sections.get('Auditoria', ''))
+        }
+
+    def _parse_sections(self) -> dict:
+        """Parse as seções do arquivo."""
+        sections = {}
+        current_section = None
+        current_content = []
+
+        for line in self.content.split('\n'):
+            if line.startswith('## '):
+                if current_section:
+                    sections[current_section] = '\n'.join(current_content)
+                current_section = line[3:].strip()
+                current_content = []
+            elif current_section:
+                current_content.append(line)
+
+        if current_section:
+            sections[current_section] = '\n'.join(current_content)
+
+        return sections
+
+    def _parse_metadata(self, content: str = None) -> dict:
         """
-        Lê o conteúdo do arquivo.
-
-        Raises:
-            FileNotFoundError: Se o arquivo não existir
-            UnicodeDecodeError: Se o arquivo não estiver em UTF-8
-        """
-        if not self.file_path.exists():
-            raise FileNotFoundError(f"Arquivo não encontrado: {self.file_path}")
-
-        self._content = self.file_path.read_text(encoding="utf-8")
-        self._lines = self._content.splitlines()
-
-    def _parse_metadata(self) -> Dict[str, Union[str, List[str]]]:
-        """
-        Extrai os metadados do arquivo LNEGC.
-
-        Returns:
-            Dict contendo os metadados do arquivo
+        Parse os metadados da entidade.
+        
+        Args:
+            content: Conteúdo da seção de metadados. Se None, usa o conteúdo do arquivo.
         """
         metadata = {}
-        if not self._lines:
-            return metadata
-
-        # Verifica se há metadados explícitos (linhas com formato chave: valor)
-        has_metadata = False
-        for line in self._lines[1:]:
-            if line.startswith("[") or line.startswith("## "):
-                break
-            if ":" in line and not line.startswith("#"):
-                has_metadata = True
-                break
-
-        # Extrai o nome do componente/entidade/interface/teste da primeira linha
-        # apenas se houver metadados explícitos
-        if has_metadata and self._lines[0].startswith("# "):
-            metadata["nome"] = self._lines[0][2:].strip()
-
-        # Processa os metadados linha por linha até encontrar uma seção
-        for line in self._lines[1:]:
-            if line.startswith("[") or line.startswith("## "):
-                break
-            
-            # Procura por pares chave: valor
-            match = re.match(r"^([^:]+):\s*(.+)$", line)
-            if match:
-                key, value = match.groups()
-                key = key.strip().lower()
-                value = value.strip()
-
-                # Converte chaves para o formato esperado
-                key_map = {
-                    "versão": "versao",
-                    "domínio": "dominio",
-                    "autor": "autor",
-                    "data": "data",
-                    "tags": "tags",
-                    "linguagem_padrão": "linguagem",
-                }
-                key = key_map.get(key, key)
-
-                # Processa tags como lista
-                if key == "tags":
-                    metadata[key] = [tag.strip() for tag in value.split(",")]
-                else:
-                    metadata[key] = value
-
+        text = content if content is not None else self.content
+        
+        for line in text.split('\n'):
+            if line.startswith('- **'):
+                key, value = line[4:].split('**:', 1)
+                metadata[key.strip()] = value.strip()
         return metadata
+
+    def _parse_list_items(self, content: str) -> List[str]:
+        """Parse itens de lista do conteúdo."""
+        items = []
+        for line in content.split('\n'):
+            if line.startswith('- '):
+                items.append(line[2:].strip())
+        return items
 
     def _parse_sections(self) -> Dict[str, str]:
         """
@@ -110,10 +104,10 @@ class LNEGCParser:
         current_content = []
         in_section = False
 
-        if not self._lines:
+        if not self.content:
             return sections
 
-        for line in self._lines:
+        for line in self.content.split('\n'):
             if line.startswith("["):
                 # Se já estávamos em uma seção, salvamos seu conteúdo
                 if current_section:
@@ -140,22 +134,4 @@ class LNEGCParser:
         if current_section:
             sections[current_section] = "\n".join(current_content).strip()
 
-        return sections
-
-    def parse(self) -> Dict[str, Dict]:
-        """
-        Processa o arquivo LNEGC e retorna sua estrutura.
-
-        Returns:
-            Dict contendo a estrutura do arquivo LNEGC com metadados e seções
-
-        Raises:
-            FileNotFoundError: Se o arquivo não existir
-            UnicodeDecodeError: Se o arquivo não estiver em UTF-8
-        """
-        self._read_file()
-
-        return {
-            "metadata": self._parse_metadata(),
-            "sections": self._parse_sections()
-        } 
+        return sections 

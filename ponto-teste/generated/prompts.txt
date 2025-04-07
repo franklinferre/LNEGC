@@ -1,0 +1,119 @@
+Por favor, gere uma entidade em typescript com as seguintes especificações:
+
+# Metadados
+- Nome: Funcionario
+- Tipo: Entidade
+- Descrição: Representa um funcionário no sistema de ponto eletrônico
+- Autor: LNEGC Team
+- Versão: 1.0.0
+
+# Atributos
+- **id**: UUID (chave primária)
+- **nome**: string (obrigatório)
+- **email**: string (obrigatório, único)
+- **cpf**: string (obrigatório, único)
+- **dataNascimento**: Date (obrigatório)
+- **dataAdmissao**: Date (obrigatório)
+- **dataDemissao**: Date (opcional)
+- **cargo**: string (obrigatório)
+- **departamento**: string (obrigatório)
+- **status**: enum (ATIVO, INATIVO, FERIAS, AFASTADO)
+- **senha**: string (obrigatório)
+- **salt**: string (obrigatório)
+
+# Validações de Negócio
+- CPF deve ser válido
+- Email deve ser válido
+- Data de nascimento deve ser maior que 18 anos
+- Data de admissão não pode ser futura
+- Data de demissão deve ser maior que data de admissão
+- Senha deve ter no mínimo 8 caracteres
+- Nome deve ter no mínimo 3 caracteres
+
+# Relacionamentos
+- **registrosPonto**: RegistroPonto[] (um para muitos)
+- **ferias**: Ferias[] (um para muitos)
+- **afastamentos**: Afastamento[] (um para muitos)
+- **departamento**: Departamento (muitos para um)
+
+# Métodos de Domínio
+- **registrarPonto()**: Registra um novo ponto
+- **solicitarFerias()**: Solicita um período de férias
+- **solicitarAfastamento()**: Solicita um afastamento
+- **alterarSenha()**: Altera a senha do funcionário
+- **verificarSenha()**: Verifica se a senha está correta
+- **calcularHorasTrabalhadas()**: Calcula as horas trabalhadas em um período
+- **calcularHorasExtras()**: Calcula as horas extras em um período
+- **calcularFaltas()**: Calcula as faltas em um período
+- **calcularAtrasos()**: Calcula os atrasos em um período
+- **calcularBancoHoras()**: Calcula o saldo do banco de horas
+
+# Índices do Banco de Dados
+- **idx_funcionario_email**: Índice único para o campo email
+- **idx_funcionario_cpf**: Índice único para o campo cpf
+- **idx_funcionario_nome**: Índice para busca por nome
+- **idx_funcionario_departamento**: Índice para busca por departamento
+- **idx_funcionario_status**: Índice para busca por status
+
+# Regras de Permissão
+- CREATE: ADMIN, RH
+- READ: ADMIN, RH, GESTOR
+- UPDATE: ADMIN, RH
+- DELETE: ADMIN
+
+# Requisitos de Auditoria
+- Registrar criação (data, usuário)
+- Registrar alterações (data, usuário, campos alterados)
+- Registrar exclusão (data, usuário)
+- Manter histórico de alterações de status
+- Manter histórico de alterações de departamento
+- Manter histórico de alterações de cargo
+
+# Requisitos Técnicos
+1. Use TypeScript com decorators para validação
+2. Implemente validações usando Zod
+3. Use classes de domínio com encapsulamento
+4. Implemente todos os métodos de domínio
+5. Adicione validações de negócio
+6. Use tipos fortes e interfaces
+7. Implemente tratamento de erros
+8. Adicione documentação JSDoc
+9. Siga os princípios SOLID
+10. Implemente testes unitários
+
+# Exemplo de Implementação
+```typescript
+import { z } from 'zod';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+/* Schema de validação */
+export const entitySchema = z.object({
+    /* ... schema definition */
+});
+
+/* Interface da entidade */
+export interface IEntity {
+    /* ... interface definition */
+}
+
+/* Classe de domínio */
+export class EntityDomain {
+    constructor(private data: IEntity) {
+        this.validate();
+    }
+
+    private validate(): void {
+        /* Validações de negócio */
+    }
+
+    /* Métodos de domínio */
+}
+
+/* Entidade do banco de dados */
+@Entity()
+export class EntityModel {
+    /* ... entity definition */
+}
+```
+
+Por favor, gere uma implementação completa seguindo estas especificações e requisitos técnicos.

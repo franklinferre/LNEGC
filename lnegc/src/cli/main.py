@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-from .processor import LNEGCProcessor
+from lnegc.src.core.processor import LNEGCProcessor
 
 
 def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
@@ -31,15 +31,15 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--dir",
         type=str,
-        default="lnegc",
-        help="Diretório base com arquivos LNEGC (padrão: 'lnegc')",
+        required=True,
+        help="Diretório contendo os arquivos .lnegc",
     )
 
     parser.add_argument(
         "--output",
         type=str,
-        default="prompt.txt",
-        help="Arquivo de saída para o prompt (padrão: 'prompt.txt')",
+        required=True,
+        help="Arquivo de saída para os prompts gerados",
     )
 
     parser.add_argument(
@@ -80,9 +80,9 @@ def main(args: Optional[List[str]] = None) -> int:
         parsed_args = parse_args(args)
 
         # Verificar diretório
-        base_dir = Path(parsed_args.dir)
+        base_dir = Path(parsed_args.dir).resolve()
         if not base_dir.exists():
-            print(f"Erro: Diretório '{base_dir}' não encontrado.", file=sys.stderr)
+            print(f"Erro: Diretório não encontrado: {base_dir}", file=sys.stderr)
             return 1
 
         if not base_dir.is_dir():
@@ -90,7 +90,7 @@ def main(args: Optional[List[str]] = None) -> int:
             return 1
 
         # Criar processador com a linguagem especificada
-        processor = LNEGCProcessor(str(base_dir), parsed_args.language)
+        processor = LNEGCProcessor(base_dir, parsed_args.language)
 
         # Processar arquivos
         if parsed_args.verbose:
@@ -100,7 +100,8 @@ def main(args: Optional[List[str]] = None) -> int:
         prompts = processor.process_all()
 
         # Salvar prompts
-        output_path = Path(parsed_args.output)
+        output_path = Path(parsed_args.output).resolve()
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text("\n\n".join(prompts), encoding="utf-8")
 
         if parsed_args.verbose:
