@@ -50,33 +50,77 @@ Exemplo 2: CPF inválido (dígitos incorretos)
     Saída:
         false
 Implementação de Referência:
-```python
-def validar_cpf(cpf: str) -> bool:
-    # Remove caracteres não numéricos
-    cpf = ''.join(filter(str.isdigit, cpf))
-    
-    # Verifica se tem 11 dígitos
-    if len(cpf) != 11:
-        raise ValueError("CPF deve ter 11 dígitos")
+```typescript
+import { useState, useEffect } from 'react';
+
+interface ValidadorCPFProps {
+    cpf: string;
+    onValidate?: (isValid: boolean) => void;
+}
+
+export const ValidadorCPF: React.FC<ValidadorCPFProps> = ({ cpf, onValidate }) => {
+    // Estado para controlar a validação
+    const [isValid, setIsValid] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Função de validação do CPF
+    const validarCPF = (cpf: string): boolean => {
+        // Remove caracteres não numéricos
+        const cpfLimpo = cpf.replace(/\D/g, '');
         
-    # Verifica se todos os dígitos são iguais
-    if len(set(cpf)) == 1:
-        return False
+        // Verifica se tem 11 dígitos
+        if (cpfLimpo.length !== 11) {
+            throw new Error("CPF deve ter 11 dígitos");
+        }
         
-    # Calcula primeiro dígito verificador
-    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
-    digito1 = (soma * 10) % 11
-    if digito1 == 10:
-        digito1 = 0
+        // Verifica se todos os dígitos são iguais
+        if (new Set(cpfLimpo).size === 1) {
+            return false;
+        }
         
-    # Calcula segundo dígito verificador
-    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
-    digito2 = (soma * 10) % 11
-    if digito2 == 10:
-        digito2 = 0
+        // Calcula primeiro dígito verificador
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpfLimpo[i]) * (10 - i);
+        }
+        let digito1 = (soma * 10) % 11;
+        if (digito1 === 10) digito1 = 0;
         
-    # Verifica os dígitos
-    return cpf[-2:] == f"{digito1}{digito2}"
+        // Calcula segundo dígito verificador
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpfLimpo[i]) * (11 - i);
+        }
+        let digito2 = (soma * 10) % 11;
+        if (digito2 === 10) digito2 = 0;
+        
+        // Verifica os dígitos
+        return cpfLimpo.slice(-2) === `${digito1}${digito2}`;
+    };
+
+    // Efeito para validar o CPF quando mudar
+    useEffect(() => {
+        try {
+            const resultado = validarCPF(cpf);
+            setIsValid(resultado);
+            setError(null);
+            onValidate?.(resultado);
+        } catch (erro) {
+            setIsValid(false);
+            setError(erro.message);
+            onValidate?.(false);
+        }
+    }, [cpf, onValidate]);
+
+    return (
+        <div className="validador-cpf">
+            <div className={`status ${isValid ? 'valido' : 'invalido'}`}>
+                {isValid ? '✓ CPF Válido' : '✗ CPF Inválido'}
+            </div>
+            {error && <div className="erro">{error}</div>}
+        </div>
+    );
+};
 ```
 
 Por favor, gere uma entidade em Vite/React com as seguintes especificações:
@@ -111,40 +155,68 @@ Relacionamentos:
 
 
 Implementação de Referência:
-```python
-from datetime import date
-from dataclasses import dataclass
-from typing import Optional
-from lnegc.componentes.validador_cpf import validar_cpf
+```typescript
+import { z } from 'zod';
 
-@dataclass
-class Cliente:
-    id: int
-    nome: str
-    email: str
-    cpf: str
-    telefone: Optional[str] = None
-    data_nascimento: Optional[date] = None
-    ativo: bool = True
+// Definição do schema de validação
+export const clienteSchema = z.object({
+    id: z.number(),
+    nome: z.string().min(3).max(100),
+    email: z.string().email(),
+    cpf: z.string(),
+    telefone: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/).optional(),
+    dataNascimento: z.date().max(new Date()).optional(),
+    ativo: z.boolean().default(true)
+});
 
-    def __post_init__(self):
-        self.validar()
+// Tipo gerado a partir do schema
+export type Cliente = z.infer<typeof clienteSchema>;
 
-    def validar(self):
-        if not 3 <= len(self.nome) <= 100:
-            raise ValueError("Nome deve ter entre 3 e 100 caracteres")
+// Classe de domínio
+export class ClienteDomain {
+    constructor(private data: Cliente) {
+        this.validar();
+    }
+
+    private validar(): void {
+        // Valida usando o schema
+        const resultado = clienteSchema.safeParse(this.data);
         
-        if not "@" in self.email:
-            raise ValueError("Email inválido")
+        if (!resultado.success) {
+            throw new Error(resultado.error.message);
+        }
         
-        if not validar_cpf(self.cpf):
-            raise ValueError("CPF inválido")
-        
-        if self.telefone and not self.telefone.match(r"\(\d{2}\) \d{5}-\d{4}"):
-            raise ValueError("Telefone deve seguir formato (XX) XXXXX-XXXX")
-        
-        if self.data_nascimento and self.data_nascimento > date.today():
-            raise ValueError("Data de nascimento deve ser anterior à data atual")
+        // Validações adicionais
+        if (!validarCPF(this.data.cpf)) {
+            throw new Error("CPF inválido");
+        }
+    }
+
+    // Getters
+    get id(): number { return this.data.id; }
+    get nome(): string { return this.data.nome; }
+    get email(): string { return this.data.email; }
+    get cpf(): string { return this.data.cpf; }
+    get telefone(): string | undefined { return this.data.telefone; }
+    get dataNascimento(): Date | undefined { return this.data.dataNascimento; }
+    get ativo(): boolean { return this.data.ativo; }
+
+    // Métodos de domínio
+    desativar(): void {
+        this.data.ativo = false;
+    }
+
+    ativar(): void {
+        this.data.ativo = true;
+    }
+
+    atualizarTelefone(novoTelefone?: string): void {
+        if (novoTelefone && !/^\(\d{2}\) \d{5}-\d{4}$/.test(novoTelefone)) {
+            throw new Error("Telefone deve seguir formato (XX) XXXXX-XXXX");
+        }
+        this.data.telefone = novoTelefone;
+    }
+}
 ```
 
 Por favor, gere uma interface em Vite/React com as seguintes especificações:
@@ -176,42 +248,63 @@ Regras:
 
 
 Implementação de Referência:
-```python
-from abc import ABC, abstractmethod
-from typing import TypeVar, List, Dict
+```typescript
+import { z } from 'zod';
 
-T = TypeVar('T')
+// Interface genérica para o repositório
+export interface IRepositorio<T> {
+    criar(entidade: T): Promise<T>;
+    ler(id: number): Promise<T>;
+    atualizar(entidade: T): Promise<T>;
+    deletar(id: number): Promise<boolean>;
+    listar(): Promise<T[]>;
+    buscar(filtro: Record<string, unknown>): Promise<T[]>;
+}
 
-class Repositorio(ABC):
-    @abstractmethod
-    def criar(self, entidade: T) -> T:
-        """Cria uma nova entidade no repositório."""
-        pass
+// Implementação base abstrata
+export abstract class RepositorioBase<T extends { id: number }> implements IRepositorio<T> {
+    protected cache: Map<number, T> = new Map();
+    protected logger: Logger;
 
-    @abstractmethod
-    def ler(self, id: int) -> T:
-        """Lê uma entidade pelo ID."""
-        pass
+    constructor(logger: Logger) {
+        this.logger = logger;
+    }
 
-    @abstractmethod
-    def atualizar(self, entidade: T) -> T:
-        """Atualiza uma entidade existente."""
-        pass
+    // Método para invalidar o cache
+    protected invalidarCache(): void {
+        this.cache.clear();
+        this.logger.info('Cache invalidado');
+    }
 
-    @abstractmethod
-    def deletar(self, id: int) -> bool:
-        """Remove uma entidade pelo ID."""
-        pass
+    // Implementação dos métodos abstratos
+    abstract criar(entidade: T): Promise<T>;
+    abstract ler(id: number): Promise<T>;
+    abstract atualizar(entidade: T): Promise<T>;
+    abstract deletar(id: number): Promise<boolean>;
+    abstract listar(): Promise<T[]>;
+    abstract buscar(filtro: Record<string, unknown>): Promise<T[]>;
+}
 
-    @abstractmethod
-    def listar(self) -> List[T]:
-        """Lista todas as entidades."""
-        pass
+// Exemplo de implementação concreta
+export class ClienteRepositorio extends RepositorioBase<Cliente> {
+    async criar(cliente: Cliente): Promise<Cliente> {
+        try {
+            // Implementação específica para persistir o cliente
+            const resultado = await db.clientes.create(cliente);
+            
+            // Invalida o cache após a escrita
+            this.invalidarCache();
+            
+            return resultado;
+        } catch (erro) {
+            this.logger.error('Erro ao criar cliente:', erro);
+            throw erro;
+        }
+    }
 
-    @abstractmethod
-    def buscar(self, filtro: Dict) -> List[T]:
-        """Busca entidades que correspondem ao filtro."""
-        pass
+    // ... implementação dos outros métodos
+}
+```
 
 Por favor, gere testes em Vite/React com as seguintes especificações:
 
@@ -256,22 +349,51 @@ Fixtures:
 
 
 Implementação de Referência:
-```python
-import pytest
-from lnegc.componentes.validador_cpf import validar_cpf
+```typescript
+import { describe, it, expect } from 'vitest';
+import { validarCPF } from '../components/ValidadorCPF';
 
-def test_cpf_valido():
-    assert validar_cpf("123.456.789-09") == True
+describe('ValidadorCPF', () => {
+    // Fixtures
+    const cpfsValidos = [
+        '529.982.247-25',
+        '123.456.789-09',
+        '111.444.777-35'
+    ];
 
-def test_cpf_invalido():
-    assert validar_cpf("123.456.789-10") == False
+    const cpfsInvalidos = [
+        '529.982.247-26',
+        '123.456.789-10',
+        '111.111.111-11'
+    ];
 
-def test_cpf_digitos_iguais():
-    assert validar_cpf("111.111.111-11") == False
+    // Testes para CPFs válidos
+    it('deve retornar true para CPFs válidos', () => {
+        cpfsValidos.forEach(cpf => {
+            expect(validarCPF(cpf)).toBe(true);
+        });
+    });
 
-def test_cpf_formato_invalido():
-    with pytest.raises(ValueError):
-        validar_cpf("123.456.789")
+    // Testes para CPFs inválidos
+    it('deve retornar false para CPFs inválidos', () => {
+        cpfsInvalidos.forEach(cpf => {
+            expect(validarCPF(cpf)).toBe(false);
+        });
+    });
+
+    // Teste para CPF com dígitos iguais
+    it('deve retornar false para CPF com todos os dígitos iguais', () => {
+        expect(validarCPF('111.111.111-11')).toBe(false);
+        expect(validarCPF('000.000.000-00')).toBe(false);
+    });
+
+    // Teste para CPF com formato inválido
+    it('deve lançar erro para CPF com formato inválido', () => {
+        expect(() => validarCPF('123.456.789')).toThrow('CPF deve ter 11 dígitos');
+        expect(() => validarCPF('')).toThrow('CPF deve ter 11 dígitos');
+    });
+});
+```
 
 Por favor, gere testes em Vite/React com as seguintes especificações:
 
@@ -316,3 +438,50 @@ Fixtures:
 - cpfsValidos: Array de CPFs válidos para teste
 - cpfsInvalidos: Array de CPFs inválidos para teste
 
+
+Implementação de Referência:
+```typescript
+import { describe, it, expect } from 'vitest';
+import { validarCPF } from '../components/ValidadorCPF';
+
+describe('ValidadorCPF', () => {
+    // Fixtures
+    const cpfsValidos = [
+        '529.982.247-25',
+        '123.456.789-09',
+        '111.444.777-35'
+    ];
+
+    const cpfsInvalidos = [
+        '529.982.247-26',
+        '123.456.789-10',
+        '111.111.111-11'
+    ];
+
+    // Testes para CPFs válidos
+    it('deve retornar true para CPFs válidos', () => {
+        cpfsValidos.forEach(cpf => {
+            expect(validarCPF(cpf)).toBe(true);
+        });
+    });
+
+    // Testes para CPFs inválidos
+    it('deve retornar false para CPFs inválidos', () => {
+        cpfsInvalidos.forEach(cpf => {
+            expect(validarCPF(cpf)).toBe(false);
+        });
+    });
+
+    // Teste para CPF com dígitos iguais
+    it('deve retornar false para CPF com todos os dígitos iguais', () => {
+        expect(validarCPF('111.111.111-11')).toBe(false);
+        expect(validarCPF('000.000.000-00')).toBe(false);
+    });
+
+    // Teste para CPF com formato inválido
+    it('deve lançar erro para CPF com formato inválido', () => {
+        expect(() => validarCPF('123.456.789')).toThrow('CPF deve ter 11 dígitos');
+        expect(() => validarCPF('')).toThrow('CPF deve ter 11 dígitos');
+    });
+});
+```

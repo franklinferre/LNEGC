@@ -109,8 +109,170 @@ class LNEGCProcessor:
         Returns:
             String contendo o prompt para o componente
         """
-        implementacao_padrao = '''```typescript
-import { useState } from 'react';
+        prompt = f"""Por favor, gere um componente em {self.target_language} com as seguintes especificações:
+
+Nome: {component['metadata'].get('nome', 'Componente')}
+Versão: {component['metadata'].get('versao', '1.0.0')}
+Autor: {component['metadata'].get('autor', 'Equipe LNEGC')}
+Tipo: {component['metadata'].get('tipo', 'Utilitário')}
+
+Descrição:
+{component['sections'].get('Descrição', component['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
+
+Algoritmo:
+{component['sections'].get('Algoritmo', component['sections'].get('ALGORITMO', 'Sem algoritmo definido.'))}
+
+Regras:
+{component['sections'].get('Regras', component['sections'].get('REGRAS', 'Sem regras definidas.'))}
+
+Interface:
+{component['sections'].get('Interface', component['sections'].get('INTERFACE', 'Sem interface definida.'))}
+
+Observações:
+- Toda a documentação deve estar em português do Brasil
+- Comentários devem estar em português do Brasil
+- Nomes de variáveis e funções devem seguir o padrão camelCase em português
+"""
+        if "Exemplos" in component["sections"] or "EXEMPLOS" in component["sections"]:
+            prompt += f"\nExemplos:\n{component['sections'].get('Exemplos', component['sections'].get('EXEMPLOS', ''))}"
+
+        # Sempre inclui a implementação padrão
+        prompt += f"\nImplementação de Referência:\n{self.implementacao_padrao}"
+
+        return prompt
+
+    def _generate_entity_prompt(self, entity: Dict) -> str:
+        """
+        Gera o prompt para uma entidade.
+
+        Args:
+            entity: Dicionário com os dados da entidade
+
+        Returns:
+            String contendo o prompt para a entidade
+        """
+        prompt = f"""Por favor, gere uma entidade em {self.target_language} com as seguintes especificações:
+
+Nome: {entity['metadata'].get('nome', 'Entidade')}
+Versão: {entity['metadata'].get('versao', '1.0.0')}
+Autor: {entity['metadata'].get('autor', 'Equipe LNEGC')}
+Tipo: {entity['metadata'].get('tipo', 'Domínio')}
+
+Descrição:
+{entity['sections'].get('Descrição', entity['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
+
+Atributos:
+{entity['sections'].get('Atributos', entity['sections'].get('ATRIBUTOS', 'Sem atributos definidos.'))}
+
+Regras:
+{entity['sections'].get('Regras', entity['sections'].get('REGRAS', 'Sem regras definidas.'))}
+
+Relacionamentos:
+{entity['sections'].get('Relacionamentos', entity['sections'].get('RELACIONAMENTOS', 'Sem relacionamentos definidos.'))}
+
+"""
+        # Sempre inclui a implementação padrão
+        prompt += f"\nImplementação de Referência:\n{self.implementacao_padrao_entidade}"
+
+        return prompt
+
+    def _generate_interface_prompt(self, interface: Dict) -> str:
+        """
+        Gera o prompt para uma interface.
+
+        Args:
+            interface: Dicionário com os dados da interface
+
+        Returns:
+            String contendo o prompt para a interface
+        """
+        prompt = f"""Por favor, gere uma interface em {self.target_language} com as seguintes especificações:
+
+Nome: {interface['metadata'].get('nome', 'Interface')}
+Versão: {interface['metadata'].get('versao', '1.0.0')}
+Autor: {interface['metadata'].get('autor', 'Equipe LNEGC')}
+Tipo: {interface['metadata'].get('tipo', 'Interface')}
+
+Descrição:
+{interface['sections'].get('Descrição', interface['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
+
+Métodos:
+{interface['sections'].get('Métodos', interface['sections'].get('MÉTODOS', 'Sem métodos definidos.'))}
+
+Propriedades:
+{interface['sections'].get('Propriedades', interface['sections'].get('PROPRIEDADES', 'Sem propriedades definidas.'))}
+
+Regras:
+{interface['sections'].get('Regras', interface['sections'].get('REGRAS', 'Sem regras definidas.'))}
+
+"""
+        # Sempre inclui a implementação padrão
+        prompt += f"\nImplementação de Referência:\n{self.implementacao_padrao_interface}"
+
+        return prompt
+
+    def _generate_test_prompt(self, test: Dict) -> str:
+        """
+        Gera o prompt para um teste.
+
+        Args:
+            test: Dicionário com os dados do teste
+
+        Returns:
+            String contendo o prompt para o teste
+        """
+        prompt = f"""Por favor, gere testes em {self.target_language} com as seguintes especificações:
+
+Nome: {test['metadata'].get('nome', 'Teste')}
+Versão: {test['metadata'].get('versao', '1.0.0')}
+Autor: {test['metadata'].get('autor', 'Equipe LNEGC')}
+Tipo: {test['metadata'].get('tipo', 'Teste Unitário')}
+
+Descrição:
+{test['sections'].get('Descrição', test['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
+
+Cenários:
+{test['sections'].get('Cenários', test['sections'].get('CENÁRIOS', '''
+1. CPF Válido
+   Entrada: "529.982.247-25"
+   Esperado: true
+   Descrição: Deve retornar true para um CPF válido
+
+2. CPF Inválido
+   Entrada: "529.982.247-26"
+   Esperado: false
+   Descrição: Deve retornar false para um CPF inválido
+
+3. CPF com Dígitos Iguais
+   Entrada: "111.111.111-11"
+   Esperado: false
+   Descrição: Deve retornar false para CPF com todos dígitos iguais
+
+4. CPF com Formato Inválido
+   Entrada: "123.456.789"
+   Esperado: Error
+   Descrição: Deve lançar erro para CPF com formato inválido'''))}
+
+Mocks:
+{test['sections'].get('Mocks', test['sections'].get('MOCKS', '''
+- Não são necessários mocks para estes testes
+'''))}
+
+Fixtures:
+{test['sections'].get('Fixtures', test['sections'].get('FIXTURES', '''
+- cpfsValidos: Array de CPFs válidos para teste
+- cpfsInvalidos: Array de CPFs inválidos para teste
+'''))}
+"""
+        # Sempre inclui a implementação padrão
+        prompt += f"\nImplementação de Referência:\n{self.implementacao_padrao_teste}"
+
+        return prompt
+
+    @property
+    def implementacao_padrao(self) -> str:
+        return '''```typescript
+import { useState, useEffect } from 'react';
 
 interface ValidadorCPFProps {
     cpf: string;
@@ -182,49 +344,9 @@ export const ValidadorCPF: React.FC<ValidadorCPFProps> = ({ cpf, onValidate }) =
 };
 ```'''
 
-        prompt = f"""Por favor, gere um componente em {self.target_language} com as seguintes especificações:
-
-Nome: {component['metadata'].get('nome', 'Componente')}
-Versão: {component['metadata'].get('versao', '1.0.0')}
-Autor: {component['metadata'].get('autor', 'Equipe LNEGC')}
-Tipo: {component['metadata'].get('tipo', 'Utilitário')}
-
-Descrição:
-{component['sections'].get('Descrição', component['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
-
-Algoritmo:
-{component['sections'].get('Algoritmo', component['sections'].get('ALGORITMO', 'Sem algoritmo definido.'))}
-
-Regras:
-{component['sections'].get('Regras', component['sections'].get('REGRAS', 'Sem regras definidas.'))}
-
-Interface:
-{component['sections'].get('Interface', component['sections'].get('INTERFACE', 'Sem interface definida.'))}
-
-Observações:
-- Toda a documentação deve estar em português do Brasil
-- Comentários devem estar em português do Brasil
-- Nomes de variáveis e funções devem seguir o padrão camelCase em português
-"""
-        if "Exemplos" in component["sections"] or "EXEMPLOS" in component["sections"]:
-            prompt += f"\nExemplos:\n{component['sections'].get('Exemplos', component['sections'].get('EXEMPLOS', ''))}"
-
-        if "Implementação" in component["sections"] or "IMPLEMENTAÇÃO" in component["sections"]:
-            prompt += f"\nImplementação de Referência:\n{component['sections'].get('Implementação', component['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
-
-        return prompt
-
-    def _generate_entity_prompt(self, entity: Dict) -> str:
-        """
-        Gera o prompt para uma entidade.
-
-        Args:
-            entity: Dicionário com os dados da entidade
-
-        Returns:
-            String contendo o prompt para a entidade
-        """
-        implementacao_padrao = '''```typescript
+    @property
+    def implementacao_padrao_entidade(self) -> str:
+        return '''```typescript
 import { z } from 'zod';
 
 // Definição do schema de validação
@@ -288,42 +410,9 @@ export class ClienteDomain {
 }
 ```'''
 
-        prompt = f"""Por favor, gere uma entidade em {self.target_language} com as seguintes especificações:
-
-Nome: {entity['metadata'].get('nome', 'Entidade')}
-Versão: {entity['metadata'].get('versao', '1.0.0')}
-Autor: {entity['metadata'].get('autor', 'Equipe LNEGC')}
-Tipo: {entity['metadata'].get('tipo', 'Domínio')}
-
-Descrição:
-{entity['sections'].get('Descrição', entity['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
-
-Atributos:
-{entity['sections'].get('Atributos', entity['sections'].get('ATRIBUTOS', 'Sem atributos definidos.'))}
-
-Regras:
-{entity['sections'].get('Regras', entity['sections'].get('REGRAS', 'Sem regras definidas.'))}
-
-Relacionamentos:
-{entity['sections'].get('Relacionamentos', entity['sections'].get('RELACIONAMENTOS', 'Sem relacionamentos definidos.'))}
-
-"""
-        if "Implementação" in entity["sections"] or "IMPLEMENTAÇÃO" in entity["sections"]:
-            prompt += f"\nImplementação de Referência:\n{entity['sections'].get('Implementação', entity['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
-
-        return prompt
-
-    def _generate_interface_prompt(self, interface: Dict) -> str:
-        """
-        Gera o prompt para uma interface.
-
-        Args:
-            interface: Dicionário com os dados da interface
-
-        Returns:
-            String contendo o prompt para a interface
-        """
-        implementacao_padrao = '''```typescript
+    @property
+    def implementacao_padrao_interface(self) -> str:
+        return '''```typescript
 import { z } from 'zod';
 
 // Interface genérica para o repositório
@@ -381,42 +470,9 @@ export class ClienteRepositorio extends RepositorioBase<Cliente> {
 }
 ```'''
 
-        prompt = f"""Por favor, gere uma interface em {self.target_language} com as seguintes especificações:
-
-Nome: {interface['metadata'].get('nome', 'Interface')}
-Versão: {interface['metadata'].get('versao', '1.0.0')}
-Autor: {interface['metadata'].get('autor', 'Equipe LNEGC')}
-Tipo: {interface['metadata'].get('tipo', 'Interface')}
-
-Descrição:
-{interface['sections'].get('Descrição', interface['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
-
-Métodos:
-{interface['sections'].get('Métodos', interface['sections'].get('MÉTODOS', 'Sem métodos definidos.'))}
-
-Propriedades:
-{interface['sections'].get('Propriedades', interface['sections'].get('PROPRIEDADES', 'Sem propriedades definidas.'))}
-
-Regras:
-{interface['sections'].get('Regras', interface['sections'].get('REGRAS', 'Sem regras definidas.'))}
-
-"""
-        if "Implementação" in interface["sections"] or "IMPLEMENTAÇÃO" in interface["sections"]:
-            prompt += f"\nImplementação de Referência:\n{interface['sections'].get('Implementação', interface['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
-
-        return prompt
-
-    def _generate_test_prompt(self, test: Dict) -> str:
-        """
-        Gera o prompt para um teste.
-
-        Args:
-            test: Dicionário com os dados do teste
-
-        Returns:
-            String contendo o prompt para o teste
-        """
-        implementacao_padrao = '''```typescript
+    @property
+    def implementacao_padrao_teste(self) -> str:
+        return '''```typescript
 import { describe, it, expect } from 'vitest';
 import { validarCPF } from '../components/ValidadorCPF';
 
@@ -462,54 +518,6 @@ describe('ValidadorCPF', () => {
 });
 ```'''
 
-        prompt = f"""Por favor, gere testes em {self.target_language} com as seguintes especificações:
-
-Nome: {test['metadata'].get('nome', 'Teste')}
-Versão: {test['metadata'].get('versao', '1.0.0')}
-Autor: {test['metadata'].get('autor', 'Equipe LNEGC')}
-Tipo: {test['metadata'].get('tipo', 'Teste Unitário')}
-
-Descrição:
-{test['sections'].get('Descrição', test['sections'].get('DESCRIÇÃO', 'Sem descrição disponível.'))}
-
-Cenários:
-{test['sections'].get('Cenários', test['sections'].get('CENÁRIOS', '''
-1. CPF Válido
-   Entrada: "529.982.247-25"
-   Esperado: true
-   Descrição: Deve retornar true para um CPF válido
-
-2. CPF Inválido
-   Entrada: "529.982.247-26"
-   Esperado: false
-   Descrição: Deve retornar false para um CPF inválido
-
-3. CPF com Dígitos Iguais
-   Entrada: "111.111.111-11"
-   Esperado: false
-   Descrição: Deve retornar false para CPF com todos dígitos iguais
-
-4. CPF com Formato Inválido
-   Entrada: "123.456.789"
-   Esperado: Error
-   Descrição: Deve lançar erro para CPF com formato inválido'''))}
-
-Mocks:
-{test['sections'].get('Mocks', test['sections'].get('MOCKS', '''
-- Não são necessários mocks para estes testes
-'''))}
-
-Fixtures:
-{test['sections'].get('Fixtures', test['sections'].get('FIXTURES', '''
-- cpfsValidos: Array de CPFs válidos para teste
-- cpfsInvalidos: Array de CPFs inválidos para teste
-'''))}
-"""
-        if "Implementação" in test["sections"] or "IMPLEMENTAÇÃO" in test["sections"]:
-            prompt += f"\nImplementação de Referência:\n{test['sections'].get('Implementação', test['sections'].get('IMPLEMENTAÇÃO', implementacao_padrao))}"
-
-        return prompt
-
     def process(self) -> Dict[str, List[str]]:
         """
         Processa todos os arquivos LNEGC e gera os prompts.
@@ -520,12 +528,53 @@ Fixtures:
         self._load_config()
         self._load_files()
 
-        # Remove duplicatas usando um set para cada tipo
-        unique_components = {str(c): c for c in self._components}
-        unique_entities = {str(e): e for e in self._entities}
-        unique_interfaces = {str(i): i for i in self._interfaces}
-        unique_tests = {str(t): t for t in self._tests}
+        # Usa dicionários para garantir unicidade baseada no nome do arquivo
+        unique_components = {}
+        unique_entities = {}
+        unique_interfaces = {}
+        unique_tests = {}
 
+        # Processa componentes
+        for c in self._components:
+            file_name = c.get('metadata', {}).get('nome', 'Componente')
+            c = c.copy()  # Cria uma cópia para não modificar o original
+            if 'sections' in c:
+                c['sections'] = c['sections'].copy()
+                c['sections'].pop('Implementação', None)
+                c['sections'].pop('IMPLEMENTAÇÃO', None)
+            unique_components[file_name] = c
+
+        # Processa entidades
+        for e in self._entities:
+            file_name = e.get('metadata', {}).get('nome', 'Entidade')
+            e = e.copy()  # Cria uma cópia para não modificar o original
+            if 'sections' in e:
+                e['sections'] = e['sections'].copy()
+                e['sections'].pop('Implementação', None)
+                e['sections'].pop('IMPLEMENTAÇÃO', None)
+            unique_entities[file_name] = e
+
+        # Processa interfaces
+        for i in self._interfaces:
+            file_name = i.get('metadata', {}).get('nome', 'Interface')
+            i = i.copy()  # Cria uma cópia para não modificar o original
+            if 'sections' in i:
+                i['sections'] = i['sections'].copy()
+                i['sections'].pop('Implementação', None)
+                i['sections'].pop('IMPLEMENTAÇÃO', None)
+            unique_interfaces[file_name] = i
+
+        # Processa testes
+        for t in self._tests:
+            file_name = t.get('metadata', {}).get('nome', 'Teste')
+            t = t.copy()  # Cria uma cópia para não modificar o original
+            if 'sections' in t:
+                t['sections'] = t['sections'].copy()
+                t['sections'].pop('Implementação', None)
+                t['sections'].pop('IMPLEMENTAÇÃO', None)
+            unique_tests[file_name] = t
+
+        # Gera os prompts com as implementações padrão
         prompts = {
             "componentes": [self._generate_component_prompt(c) for c in unique_components.values()],
             "entidades": [self._generate_entity_prompt(e) for e in unique_entities.values()],
