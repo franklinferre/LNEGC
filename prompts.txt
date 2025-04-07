@@ -1,4 +1,4 @@
-Por favor, gere um componente em Vite/React com as seguintes especificações:
+Por favor, gere um componente em python com as seguintes especificações:
 
 Nome: Componente
 Versão: 1.0.0
@@ -123,7 +123,7 @@ export const ValidadorCPF: React.FC<ValidadorCPFProps> = ({ cpf, onValidate }) =
 };
 ```
 
-Por favor, gere uma entidade em Vite/React com as seguintes especificações:
+Por favor, gere uma entidade em python com as seguintes especificações:
 
 Nome: Entidade
 Versão: 1.0.0
@@ -219,7 +219,7 @@ export class ClienteDomain {
 }
 ```
 
-Por favor, gere uma interface em Vite/React com as seguintes especificações:
+Por favor, gere uma interface em python com as seguintes especificações:
 
 Nome: Interface
 Versão: 1.0.0
@@ -306,7 +306,7 @@ export class ClienteRepositorio extends RepositorioBase<Cliente> {
 }
 ```
 
-Por favor, gere testes em Vite/React com as seguintes especificações:
+Por favor, gere testes em python com as seguintes especificações:
 
 Nome: Teste
 Versão: 1.0.0
@@ -395,7 +395,7 @@ describe('ValidadorCPF', () => {
 });
 ```
 
-Por favor, gere testes em Vite/React com as seguintes especificações:
+Por favor, gere testes em python com as seguintes especificações:
 
 Nome: Teste do Validador de CPF
 Versão: 1.0.0

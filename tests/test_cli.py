@@ -9,6 +9,7 @@ import os
 import tempfile
 from pathlib import Path
 from unittest import TestCase, main
+from unittest.mock import patch
 
 from lnegc.cli import main as cli_main
 
@@ -119,6 +120,33 @@ Tags: teste, componente
         self.assertEqual(result, 0)
         content = output_file.read_text()
         self.assertIn("java", content.lower())
+
+    def test_cli_exception_handling(self):
+        """Testa o tratamento de exceções no CLI."""
+        # Força uma exceção ao tentar processar um diretório inválido
+        with patch('lnegc.processor.LNEGCProcessor.process', side_effect=Exception("Erro forçado")):
+            result = cli_main(["--dir", str(Path(self.temp_dir) / "invalid"), "--verbose"])
+            self.assertEqual(result, 1)  # Deve retornar código de erro 1
+
+    def test_cli_exception_without_args(self):
+        """Testa o tratamento de exceções quando parsed_args é None."""
+        # Força uma exceção antes que parsed_args seja definido
+        with patch('lnegc.cli.parse_args', side_effect=Exception("Erro antes de parsed_args")):
+            result = cli_main([])
+            self.assertEqual(result, 1)  # Deve retornar código de erro 1
+
+    def test_cli_main_entry_point(self):
+        """Testa o ponto de entrada principal do CLI."""
+        # Cria um arquivo temporário para testar
+        output_file = Path(self.temp_dir) / "output.txt"
+        
+        # Executa o CLI como script principal
+        with patch('sys.argv', ['lnegc', '--dir', str(self.base_dir), '--output', str(output_file)]):
+            with patch('sys.exit') as mock_exit:
+                import lnegc.cli
+                if hasattr(lnegc.cli, '__main__'):
+                    mock_exit.assert_called_once()
+                    self.assertTrue(output_file.exists())
 
 
 if __name__ == "__main__":

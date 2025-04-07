@@ -34,8 +34,15 @@ class LNEGCProcessor:
         self._entities: List[Dict] = []
         self._interfaces: List[Dict] = []
         self._tests: List[Dict] = []
-        self.target_language = target_language
-        self._load_config()  # Carrega configuração imediatamente para definir a linguagem
+        self.target_language = target_language or 'python'  # Define python como padrão inicial
+        
+        # Carrega a configuração automaticamente se o diretório existir
+        if self.directory.exists():
+            try:
+                self._load_config()
+            except FileNotFoundError:
+                # Se não encontrar o arquivo de configuração, mantém as configurações padrão
+                pass
 
     def _load_config(self) -> None:
         """
@@ -45,29 +52,30 @@ class LNEGCProcessor:
             FileNotFoundError: Se o arquivo config.lnegc não existir
         """
         config_file = self.directory / "config.lnegc"
+        print("\nCarregando arquivo de configuração:", config_file)
         if not config_file.exists():
+            if not self.directory.exists():
+                raise FileNotFoundError(f"Diretório não existe: {self.directory}")
             raise FileNotFoundError(f"Arquivo de configuração não encontrado: {config_file}")
 
         parser = LNEGCParser(config_file)
         self._config = parser.parse()
+        print("Config carregado:", self._config)
         
         # Define a linguagem alvo com base na configuração
-        if self.target_language is None:
+        if self.target_language == 'python':  # Só atualiza se ainda estiver com o valor padrão
             # Procura a linguagem nas configurações
             config_sections = self._config.get('sections', {})
             if 'CONFIGURAÇÕES' in config_sections:
-                for line in config_sections['CONFIGURAÇÕES'].split('\n'):
-                    if line.startswith('Linguagem_Padrão:'):
+                config_text = config_sections['CONFIGURAÇÕES']
+                for line in config_text.split('\n'):
+                    if line.strip().startswith('- Linguagem:'):
                         self.target_language = line.split(':')[1].strip()
                         break
             
             # Se não encontrou, procura nos metadados
-            if not self.target_language:
-                self.target_language = self._config.get('metadata', {}).get('linguagem')
-            
-            # Se ainda não encontrou, usa Vite/React como padrão
-            if not self.target_language:
-                self.target_language = 'Vite/React'
+            if self.target_language == 'python':
+                self.target_language = self._config.get('metadata', {}).get('linguagem', 'python')
 
     def _load_files(self) -> None:
         """Carrega todos os arquivos .lnegc do projeto."""
@@ -520,12 +528,12 @@ describe('ValidadorCPF', () => {
 
     def process(self) -> Dict[str, List[str]]:
         """
-        Processa todos os arquivos LNEGC e gera os prompts.
+        Processa todos os arquivos do projeto e gera os prompts.
 
         Returns:
-            Dicionário com os prompts gerados por tipo
+            Dicionário com os prompts gerados para cada tipo de arquivo
         """
-        self._load_config()
+        self._load_config()  # Carrega configuração apenas quando necessário
         self._load_files()
 
         # Usa dicionários para garantir unicidade baseada no nome do arquivo

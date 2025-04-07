@@ -254,6 +254,61 @@ Não são necessários mocks para este teste.
         with self.assertRaises(FileNotFoundError):
             processor.process()
 
+    def test_processor_default_language(self):
+        """Testa o uso da linguagem padrão quando não especificada na configuração."""
+        # Remove a configuração de linguagem do arquivo de configuração
+        config_content = """# Projeto LNEGC
+Versão: 1.0.0
+Autor: Equipe LNEGC
+Data: 2023-10-15
+Domínio: Testes
+Tags: teste, configuração
+
+## Descrição
+Projeto de teste para o processador LNEGC.
+
+## Configurações
+- Nome: Projeto Teste
+- Versão: 1.0.0
+- Framework: FastAPI
+- Banco de Dados: PostgreSQL
+
+## Dependências
+- OpenAI API
+- Python 3.8+
+- Markdown
+"""
+        (self.test_dir / "config.lnegc").write_text(config_content)
+
+        # Cria o processador sem especificar a linguagem
+        processor = LNEGCProcessor(self.test_dir)
+        self.assertEqual(processor.target_language, "python")  # Deve usar python como padrão
+
+    def test_processor_config_language(self):
+        """Testa a detecção de linguagem nas configurações."""
+        # Cria arquivo de configuração com linguagem definida nas configurações
+        config_content = """# Projeto LNEGC
+Versão: 1.0.0
+Autor: Equipe LNEGC
+
+## CONFIGURAÇÕES
+- Nome: Projeto Teste
+- Linguagem: typescript
+- Framework: FastAPI"""
+        config_file = self.test_dir / "config.lnegc"
+        config_file.write_text(config_content)
+
+        print("\nArquivo de configuração existe?", config_file.exists())
+        print("Conteúdo do arquivo:", config_file.read_text())
+
+        # Cria o processador sem especificar a linguagem
+        processor = LNEGCProcessor(self.test_dir)
+        print("\nConteúdo do arquivo de configuração:")
+        print(config_content)
+        print("\nSeções do config:")
+        print(processor._config.get('sections', {}))
+        self.assertEqual(processor.target_language, "typescript")  # Deve usar a linguagem das configurações
+
 
 if __name__ == "__main__":
     main() 

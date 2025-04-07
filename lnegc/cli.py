@@ -74,6 +74,7 @@ def main(args: Optional[List[str]] = None) -> int:
     Returns:
         0 em caso de sucesso, outro valor em caso de erro.
     """
+    parsed_args = None
     try:
         # Processar argumentos
         parsed_args = parse_args(args)

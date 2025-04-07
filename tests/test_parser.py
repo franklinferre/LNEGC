@@ -169,6 +169,63 @@ Tags: cpf, validação, documento
         with self.assertRaises(UnicodeDecodeError):
             parser.parse()
 
+    def test_parse_metadata_with_explicit_metadata(self):
+        """Testa extração de metadados com formato explícito."""
+        content = """# Componente Teste
+Versão: 1.0.0
+Autor: Teste
+Data: 2023-01-01
+Tags: teste, metadata
+
+## Descrição
+Teste de metadados explícitos.
+"""
+        file_path = Path(self.temp_dir) / "test_explicit.lnegc"
+        file_path.write_text(content)
+
+        parser = LNEGCParser(file_path)
+        result = parser.parse()
+
+        self.assertEqual(result["metadata"]["nome"], "Componente Teste")
+        self.assertEqual(result["metadata"]["versao"], "1.0.0")
+        self.assertEqual(result["metadata"]["autor"], "Teste")
+        self.assertEqual(result["metadata"]["data"], "2023-01-01")
+        self.assertEqual(result["metadata"]["tags"], ["teste", "metadata"])
+
+    def test_parse_sections_with_empty_content(self):
+        """Testa extração de seções com conteúdo vazio."""
+        content = """# Componente Teste
+Versão: 1.0.0
+
+[Seção 1]
+
+[Seção 2]
+Conteúdo da seção 2
+
+[Seção 3]
+"""
+        file_path = Path(self.temp_dir) / "test_sections.lnegc"
+        file_path.write_text(content)
+
+        parser = LNEGCParser(file_path)
+        result = parser.parse()
+
+        self.assertEqual(result["sections"]["Seção 1"], "")
+        self.assertEqual(result["sections"]["Seção 2"], "Conteúdo da seção 2")
+        self.assertEqual(result["sections"]["Seção 3"], "")
+
+    def test_parse_empty_file(self):
+        """Testa processamento de arquivo vazio."""
+        # Cria arquivo vazio
+        file_path = Path(self.temp_dir) / "empty.lnegc"
+        file_path.write_text("")
+
+        parser = LNEGCParser(file_path)
+        result = parser.parse()
+
+        self.assertEqual(result["metadata"], {})
+        self.assertEqual(result["sections"], {})
+
 
 if __name__ == "__main__":
     main() 

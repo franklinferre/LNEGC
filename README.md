@@ -1,131 +1,214 @@
 # LNEGC - Linguagem Natural Estruturada para Geração de Código
 
+LNEGC é uma linguagem e ferramenta que permite gerar código a partir de descrições em linguagem natural estruturada.
+
 ## Visão Geral
 
-LNEGC é uma linguagem controlada em português do Brasil projetada para descrever algoritmos, estruturas de dados e requisitos de software de forma estruturada, facilitando a geração automática de código por sistemas de IA.
+O LNEGC permite que você:
+
+- Descreva componentes, entidades e interfaces em linguagem natural
+- Gere código automaticamente a partir dessas descrições
+- Mantenha documentação sempre atualizada
+- Siga padrões e boas práticas consistentemente
+
+## Instalação
+
+```bash
+npm install -g lnegc
+# ou
+yarn global add lnegc
+```
+
+## Uso Básico
+
+1. Criar um arquivo `.lnegc`:
+
+```lnegc
+# Calculadora
+
+Este componente implementa operações matemáticas básicas.
+
+## Interface
+```typescript
+interface Calculadora {
+    soma(a: number, b: number): number;
+    subtracao(a: number, b: number): number;
+    multiplicacao(a: number, b: number): number;
+    divisao(a: number, b: number): number;
+}
+```
+
+## Algoritmo
+1. Receber operação e operandos
+2. Validar operandos
+3. Executar operação
+4. Retornar resultado
+
+## Exemplos
+```typescript
+const calc = new Calculadora();
+const resultado = calc.soma(5, 3);
+console.log(resultado); // 8
+```
+```
+
+2. Gerar código:
+
+```bash
+lnegc generate src/components/calculadora.lnegc
+```
 
 ## Estrutura do Projeto
 
 ```
-lnegc/
-├── componentes/     # Componentes reutilizáveis
-├── entidades/       # Definições de entidades
-├── interfaces/      # Definições de interfaces
-├── testes/          # Especificações de testes
-└── config.lnegc     # Configuração global do projeto
+projeto/
+├── .lnegc/                  # Configurações do LNEGC
+│   ├── config.lnegc         # Configuração global
+│   ├── rules.lnegc          # Regras do projeto
+│   └── templates/           # Templates personalizados
+│
+├── src/                     # Código fonte
+│   ├── components/          # Componentes
+│   │   └── *.lnegc         # Arquivos de componentes
+│   ├── entities/           # Entidades
+│   │   └── *.lnegc         # Arquivos de entidades
+│   ├── interfaces/         # Interfaces
+│   │   └── *.lnegc         # Arquivos de interfaces
+│   └── tests/              # Testes
+│       └── *.lnegc         # Arquivos de teste
+│
+├── docs/                    # Documentação
+│   ├── README.md           # Documentação principal
+│   ├── INDEX.md            # Índice da documentação
+│   ├── ESTRUTURA.md        # Estrutura do projeto
+│   ├── GUIAS.md            # Guias de uso
+│   ├── EXEMPLOS.md         # Exemplos
+│   ├── BOAS_PRATICAS.md    # Boas práticas
+│   ├── TEMPLATES.md        # Templates
+│   ├── ESPECIFICACAO.md    # Especificação
+│   ├── GRAMATICA.md        # Gramática formal
+│   ├── PROCESSADOR.md      # Especificação do processador
+│   ├── PROMPTS.md          # Especificação dos prompts
+│   └── VANTAGENS.md        # Vantagens
+│
+├── generated/              # Código gerado
+│   ├── components/         # Componentes gerados
+│   ├── entities/          # Entidades geradas
+│   ├── interfaces/        # Interfaces geradas
+│   └── tests/             # Testes gerados
+│
+├── .gitignore             # Arquivos ignorados pelo Git
+├── package.json           # Dependências e scripts
+└── README.md              # Documentação do projeto
 ```
 
-## Formato dos Arquivos LNEGC
+## Configuração Inicial
 
-Cada arquivo `.lnegc` segue um formato estruturado com:
-
-1. **Cabeçalho**:
-   ```
-   # Nome do Componente/Entidade/Interface
-   Versão: 1.0.0
-   Autor: Nome do Autor
-   Data: YYYY-MM-DD
-   Domínio: Domínio do Componente
-   Tags: tag1, tag2, tag3
-   ```
-
-2. **Seções**:
-   - Cada seção começa com `## Nome da Seção`
-   - O conteúdo é escrito em português do Brasil
-   - Podem incluir exemplos, algoritmos, regras de negócio, etc.
-
-## Exemplos
-
-### Componente (validador_cpf.lnegc)
+1. Criar diretório do projeto:
+```bash
+mkdir meu-projeto
+cd meu-projeto
 ```
-# Validador de CPF
-Versão: 1.0.0
-Autor: Equipe LNEGC
-Data: 2023-10-15
-Domínio: Validação
-Tags: cpf, validação, brasileiro
 
-## Descrição
-Componente para validação de CPF brasileiro.
+2. Inicializar projeto:
+```bash
+lnegc init
+```
+
+3. Configurar arquivo `.lnegc/config.lnegc`:
+```lnegc
+# Configuração do Projeto
+
+## Metadados
+- **Nome**: Meu Projeto
+- **Versão**: 1.0.0
+- **Autor**: João Silva
+- **Domínio**: exemplo.com
+- **Tags**: web, api, backend
+
+## Configurações
+- **Linguagem**: TypeScript
+- **Framework**: Node.js
+- **Banco de Dados**: PostgreSQL
+- **Testes**: Jest
+```
+
+## Exemplo de Uso
+
+1. Criar componente:
+```lnegc
+# Calculadora
+
+Este componente implementa operações matemáticas básicas.
 
 ## Interface
-- Entrada: String (CPF)
-- Saída: Boolean (válido/inválido)
-- Exceções: FormatoInvalidoException
+```typescript
+interface Calculadora {
+    soma(a: number, b: number): number;
+    subtracao(a: number, b: number): number;
+    multiplicacao(a: number, b: number): number;
+    divisao(a: number, b: number): number;
+}
+```
 
 ## Algoritmo
-1. Limpar entrada (remover pontuação)
-2. Verificar comprimento (11 dígitos)
-3. Verificar dígitos repetidos
-4. Calcular dígitos verificadores
-5. Comparar com dígitos informados
+1. Receber operação e operandos
+2. Validar operandos
+3. Executar operação
+4. Retornar resultado
+
+## Exemplos
+```typescript
+const calc = new Calculadora();
+const resultado = calc.soma(5, 3);
+console.log(resultado); // 8
+```
 ```
 
-### Entidade (cliente.lnegc)
-```
-# Cliente
-Versão: 1.0.0
-Autor: Equipe LNEGC
-Data: 2023-10-15
-Domínio: CRM
-Tags: cliente, pessoa, cadastro
-
-## Atributos
-- id: UUID (obrigatório, auto-gerado)
-- nome: String (obrigatório, 3-100 caracteres)
-- cpf: String (obrigatório, CPF válido)
-- email: String (obrigatório, formato válido)
-- telefone: String (opcional)
-- status: Enum (ATIVO, INATIVO)
-
-## Relacionamentos
-- Pedidos: One-to-Many
-- Categorias: Many-to-Many
-```
-
-## Processador LNEGC
-
-O processador LNEGC é uma ferramenta Python que:
-
-1. Lê arquivos `.lnegc`
-2. Extrai metadados e seções
-3. Gera um prompt estruturado para alimentar sistemas de IA
-4. Suporta múltiplas linguagens de programação
-
-### Uso
-
+2. Gerar código:
 ```bash
-python lnegc_processor.py --dir lnegc --output prompt.txt --language python
+lnegc generate src/components/calculadora.lnegc
 ```
 
-### Opções
+3. Validar código:
+```bash
+lnegc validate src/components/calculadora.lnegc
+```
 
-- `--dir`: Diretório base com arquivos LNEGC (padrão: 'lnegc')
-- `--output`: Arquivo de saída para o prompt (padrão: 'prompt.txt')
-- `--language`: Linguagem alvo para geração de código (padrão: 'python')
+4. Analisar código:
+```bash
+lnegc analyze src/components/calculadora.lnegc
+```
 
-## Integração com IA
+## Vantagens
 
-O prompt gerado pelo processador pode ser usado com:
+- **Produtividade**: Gere código rapidamente a partir de descrições
+- **Qualidade**: Siga padrões e boas práticas consistentemente
+- **Manutenibilidade**: Documentação sempre atualizada
+- **Colaboração**: Linguagem comum para toda a equipe
+- **Escalabilidade**: Estrutura organizada e extensível
 
-1. OpenAI GPT-4
-2. Claude
-3. Outros modelos de linguagem avançados
+## Documentação
 
-O prompt inclui:
-- Configuração do projeto
-- Entidades e relacionamentos
-- Interfaces e contratos
-- Componentes e algoritmos
-- Testes e cenários
+- [Índice](docs/INDEX.md)
+- [Estrutura](docs/ESTRUTURA.md)
+- [Guias](docs/GUIAS.md)
+- [Exemplos](docs/EXEMPLOS.md)
+- [Boas Práticas](docs/BOAS_PRATICAS.md)
+- [Templates](docs/TEMPLATES.md)
+- [Especificação](docs/ESPECIFICACAO.md)
+- [Gramática](docs/GRAMATICA.md)
+- [Processador](docs/PROCESSADOR.md)
+- [Prompts](docs/PROMPTS.md)
+- [Vantagens](docs/VANTAGENS.md)
 
-## Contribuindo
+## Contribuição
 
-1. Fork o repositório
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request
+1. Fork o projeto
+2. Crie sua branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Feat: adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
 
 ## Licença
 
