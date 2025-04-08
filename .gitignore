@@ -127,3 +127,6 @@ ENV/
 
 # LNEGC
 *.lnegc.bak 
+
+ponto-teste/
+lrponto/
